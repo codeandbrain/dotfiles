@@ -1,0 +1,37 @@
+name: zarishsphere-devpod
+provider: docker
+ports:
+  - 3000:3000 # For Open WebUI
+
+# Define the base image for the DevPod environment
+# This should be a minimal Ubuntu image or similar
+# that is compatible with the existing bootstrap.sh script.
+# For a newbie, a pre-configured image might be better, but for now, we'll use a base.
+image: ubuntu:22.04
+
+# Commands to run when the DevPod is created
+# This will execute the bootstrap.sh script to set up the environment
+init_scripts:
+  - /usr/bin/env bash /workspace/scripts/bootstrap.sh
+
+# Mount the dotfiles repository into the DevPod
+# This ensures that the dotfiles are available within the sandboxed environment
+volumes:
+  - .:/workspace
+
+# Environment variables for the DevPod
+env:
+  NVM_DIR: "/home/ubuntu/.nvm"
+  PATH: "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/home/ubuntu/.local/bin:/home/ubuntu/go/bin:/home/ubuntu/.nvm/versions/node/v24/bin"
+
+# Forward SSH agent for Git operations
+ssh_agent: true
+
+# Lifecycle hooks
+lifecycle_hooks:
+  post_create:
+    - command: "devpod up"
+  post_start:
+    - command: "devpod exec chezmoi apply"
+    - command: "devpod exec ollama serve &"
+    - command: "devpod exec docker run -d --name open-webui --restart always -p 3000:8080 -v open-webui:/app/backend/data --add-host=host.docker.internal:host-gateway ghcr.io/open-webui/open-webui:v0.5.21"
