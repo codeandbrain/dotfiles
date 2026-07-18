@@ -26,6 +26,7 @@
 | Tool | Version to install | Install command |
 |---|---|---|
 | Docker | 27.x | see scripts/bootstrap.sh §Docker |
+| DevPod | 0.4.1 | AppImage | `~/.local/bin/devpod` |
 | Claude Code | latest stable | `npm install -g @anthropic-ai/claude-code` |
 | Gemini CLI | latest stable | `npm install -g @google/gemini-cli` |
 | Ollama | latest stable | `curl -fsSL https://ollama.com/install.sh \| sh` |
@@ -42,6 +43,7 @@
 | gh CLI | https://github.com/cli/cli/releases (download `gh_X.Y.Z_linux_amd64.tar.gz`) |
 | chezmoi | https://www.chezmoi.io/install/ |
 | Docker | https://docs.docker.com/engine/install/ubuntu/ |
+| DevPod | https://github.com/loft-sh/devpod/releases |
 | Claude Code | https://docs.anthropic.com/claude-code |
 | Gemini CLI | https://github.com/google-gemini/gemini-cli |
 | Ollama | https://ollama.com/download/linux |

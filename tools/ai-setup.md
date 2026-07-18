@@ -1,25 +1,26 @@
 # tools/ai-setup.md
-## ZarishSphere — Multi-AI Tool Setup
+## ZarishSphere — Multi-AI Tool Setup (within DevPod)
 
-**Principle:** Every AI tool here is free, open-source, and vendor-switchable.  
-**GUI first:** Every tool listed has a GUI path. Terminal is secondary.  
+**Principle:** Every AI tool here is free, open-source, and vendor-switchable. These tools are designed to run seamlessly within your DevPod sandboxed environment.  
+**GUI first: Every tool listed has a GUI path, especially when run within DevPod. Terminal is secondary, used for initial setup or advanced configurations.  
 **No lock-in:** All config files are in this repo. Switching AI providers = changing one line.
 
 ---
 
 ## The AI stack for ZarishSphere
 
-| Layer | Tool | What it does | Free? | Offline? |
-|---|---|---|---|---|
-| Coding agent (terminal) | Claude Code | Full codebase understanding, file editing, terminal control | Free tier | No |
-| Coding agent (terminal) | Gemini CLI | Google's terminal coding agent | Free tier | No |
-| Coding agent (terminal) | OpenCode | Multi-provider terminal agent | Free | No |
-| Coding agent (VS Code) | Cline | Claude/GPT-powered VS Code agent | Free tier | No |
-| Coding agent (VS Code) | Continue | Open-source AI coding in VS Code | Free | Optional |
-| Local LLM runtime | Ollama | Runs LLMs on your own machine | Free | YES |
-| Local LLM UI | Open WebUI | Browser GUI for Ollama | Free | YES |
-| AI writing (desktop) | Moraya | Already installed (AppImage) | Free | Partial |
-| AI writing (ZarishSphere) | ZarishNote | Under development | Free | YES (Plane 0) |
+| Layer | Tool | What it does | Free? | Offline? | Environment |
+|---|---|---|---|---|---|
+| Sandboxing | DevPod | Isolated, reproducible development environments | Free | N/A | Host (GUI) |
+| Coding agent (terminal) | Claude Code | Full codebase understanding, file editing, terminal control | Free tier | No | DevPod |
+| Coding agent (terminal) | Gemini CLI | Google's terminal coding agent | Free tier | No | DevPod |
+| Coding agent (terminal) | OpenCode | Multi-provider terminal agent | Free | No | DevPod |
+| Coding agent (VS Code) | Cline | Claude/GPT-powered VS Code agent | Free tier | No | DevPod (VS Code) |
+| Coding agent (VS Code) | Continue | Open-source AI coding in VS Code | Free | Optional | DevPod (VS Code) |
+| Local LLM runtime | Ollama | Runs LLMs on your own machine | Free | YES | DevPod |
+| Local LLM UI | Open WebUI | Browser GUI for Ollama | Free | YES | DevPod |
+| AI writing (desktop) | Moraya | Already installed (AppImage) | Free | Partial | DevPod |
+| AI writing (ZarishSphere) | ZarishNote | Under development | Free | YES (Plane 0) | DevPod |
 
 ---
 
@@ -158,7 +159,7 @@ Edit `~/.continue/config.json` under the `mcpServers` key.
 
 ## Switching between AI providers
 
-The multi-AI setup is designed so that changing your primary AI is one edit:
+The multi-AI setup is designed so that changing your primary AI is one edit. When running within DevPod, these configurations are isolated to your development environment:
 
 | Tool | Config file | Line to change |
 |---|---|---|

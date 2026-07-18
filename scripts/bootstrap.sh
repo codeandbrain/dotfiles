@@ -64,6 +64,7 @@ log_manual()  { echo -e "  ${BLUE}◆ MANUAL STEP:${NC} $1"; }
 GO_VERSION="1.24.4"
 GH_VERSION="2.95.0"
 NODE_VERSION="24"
+DEV_POD_VERSION="0.4.1"
 # Ollama: install script pulls latest stable — acceptable for self-hosted tools
 
 # =============================================================================
@@ -191,8 +192,6 @@ fi
 
 # =============================================================================
 # §7 — DOCKER ENGINE
-# =============================================================================
-log_section "§7 — Docker"
 
 if command -v docker &>/dev/null; then
     log_skip "Docker $(docker --version)"
@@ -224,6 +223,26 @@ else
     log_ok "Docker installed"
     log_warn "IMPORTANT: Log out and back in for docker group to take effect"
     log_warn "  Or run: newgrp docker"
+fi
+
+
+# =============================================================================
+# §7.5 — DEVPOD
+# =============================================================================
+log_section "§7.5 — DevPod"
+
+if command -v devpod &>/dev/null; then
+    log_skip "DevPod"
+else
+    log_warn "Installing DevPod..."
+    DEV_POD_URL="https://github.com/loft-sh/devpod/releases/download/v${DEV_POD_VERSION}/devpod_linux_amd64.AppImage"
+    DEV_POD_PATH="$HOME/.local/bin/devpod"
+
+    mkdir -p "$(dirname "$DEV_POD_PATH")"
+    wget -q "$DEV_POD_URL" -O "$DEV_POD_PATH"
+    chmod +x "$DEV_POD_PATH"
+    log_ok "DevPod installed to $DEV_POD_PATH"
+    log_manual "Run: devpod ui & to start the DevPod UI"
 fi
 
 # =============================================================================
@@ -365,7 +384,13 @@ echo -e "  ${BLUE}1.${NC} Register SSH key on GitHub (see §8 output above)"
 echo -e "  ${BLUE}2.${NC} Test SSH:    ssh -T git@github.com"
 echo -e "  ${BLUE}3.${NC} Auth gh CLI: gh auth login"
 echo -e "  ${BLUE}4.${NC} Apply dotfiles:"
-echo -e "       chezmoi init --apply https://github.com/codeandbrain/dotfiles"
+echo -e "       if [ -n "$DEVPOD_NAME" ]; then
+        log_manual "Running inside DevPod. Applying dotfiles..."
+        chezmoi init --apply https://github.com/codeandbrain/dotfiles
+    else
+        log_manual "Not running inside DevPod. Please install DevPod and create a workspace."
+        log_manual "  Then run: chezmoi init --apply https://github.com/codeandbrain/dotfiles"
+    fi
 echo -e "  ${BLUE}5.${NC} Reload shell: source ~/.bashrc"
 echo -e "  ${BLUE}6.${NC} Verify tools: zstools"
 echo -e "  ${BLUE}7.${NC} Clone ZS workspace: zsclone"
