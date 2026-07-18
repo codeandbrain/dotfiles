@@ -1,0 +1,22 @@
+# ~/.config/gh/config.yml
+# GitHub CLI — global configuration
+# Managed by: codeandbrain/dotfiles (chezmoi)
+# =====================================================================
+
+# Protocol: ssh — consistent with .gitconfig SSH enforcement
+# Changed from 'https' to resolve the protocol conflict between
+# this file (was: https) and hosts.yml (was: ssh)
+git_protocol: ssh
+
+# Editor for gh prompts
+editor: nano
+
+# Prompt: disabled — we use aliases and scripts instead
+prompt: disabled
+
+# Pager: less without clearing screen
+pager: less -FX
+
+# Aliases
+aliases:
+    co: pr checkout
