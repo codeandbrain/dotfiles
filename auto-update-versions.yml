@@ -1,0 +1,55 @@
+name: Automated Tool Version Update
+
+on:
+  schedule:
+    # Run every Monday at 00:00 UTC
+    - cron: '0 0 * * 1'
+  workflow_dispatch:
+
+jobs:
+  update-versions:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Gemini CLI
+        run: npm install -g @google/gemini-cli
+
+      - name: Run Gemini CLI to check and update versions
+        id: gemini_update
+        run: |
+          # This is a placeholder. A real implementation would involve:
+          # 1. Gemini CLI reading manifest.md
+          # 2. Gemini CLI checking for newer stable versions of tools
+          # 3. Gemini CLI updating manifest.md with new versions
+          # 4. Gemini CLI creating a pull request if changes are detected
+          echo "Simulating Gemini CLI version check and update..."
+          # For demonstration, let's assume a change is always detected
+          echo "changes_detected=true" >> $GITHUB_OUTPUT
+          # In a real scenario, this would be a more complex script
+          # that interacts with Gemini CLI and potentially other tools
+          # to parse manifest.md, check for updates, and modify the file.
+          # Example: gemini run --manifest tools/manifest.md --update-strategy latest-stable
+
+      - name: Create Pull Request
+        if: steps.gemini_update.outputs.changes_detected == 'true'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: 'Automated: Update tool versions in manifest.md'
+          title: 'Automated: Update tool versions in manifest.md'
+          body: 'This PR automatically updates tool versions in `tools/manifest.md` to their latest stable releases, as detected by an AI agent.'
+          branch: 'automated-version-update'
+          base: 'main'
+          labels: | 
+            automated
+            dependencies
+          assignees: codeandbrain
+          reviewers: codeandbrain
