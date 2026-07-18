@@ -1,0 +1,40 @@
+# Commit message template — ZarishSphere
+# Format: <type>(<scope>): <subject>
+# ---------------------------------------------------------------
+# TYPE — choose one:
+#   feat      new feature
+#   fix       bug fix
+#   docs      documentation only
+#   refactor  code change, no feature or fix
+#   chore     build, CI, dependency update, config
+#   standard  new/updated standard entry (ZI-UID)
+#   data      data or schema change
+#   adr       architecture decision record
+#
+# SCOPE — choose one:
+#   platform | index | standards | fhir | engine | console
+#   marketplace | builder | forms | sdk | cli | api
+#   note | infra | docs | ci | config | auth
+#   health | education | logistics | protection | wash | nutrition
+#   dotfiles
+#
+# SUBJECT:
+#   imperative: "add" not "added" · no period · max 72 chars total
+#
+# EXAMPLES:
+#   feat(forms): add MUAC screening form from ZI-HEALTH-00234
+#   fix(fhir): resolve patient ID collision in FDMN registry
+#   docs(adr): record ADR-003 go-native-fhir-server decision
+#   chore(dotfiles): fix PATH duplication in dot_bashrc
+#   standard(index): add 12 ILO convention entries to ZI-LABOUR
+# ---------------------------------------------------------------
+# BODY (optional — blank line after subject):
+# Explain WHY. Reference ZI-UIDs, ADR numbers, issue numbers.
+#
+# FOOTER (optional):
+# Closes #<issue>
+# Refs: ZI-HEALTH-00234, ADR-003
+# BREAKING CHANGE: describe what breaks and migration path
+# ---------------------------------------------------------------
+
+

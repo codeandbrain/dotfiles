@@ -1,0 +1,12 @@
+# ~/.npmrc
+# npm configuration — codeandbrain
+# Managed by: codeandbrain/dotfiles (chezmoi)
+# =====================================================================
+
+# Registry — npmmirror.com is the official npm mirror for Bangladesh/Asia
+# Faster downloads on mobile broadband than the default registry.npmjs.org
+registry=https://registry.npmmirror.com
+
+# Fallback for packages not on the mirror (uncomment if needed):
+# @anthropic-ai:registry=https://registry.npmjs.org
+# @google:registry=https://registry.npmjs.org

@@ -1,0 +1,444 @@
+# ~/.bashrc
+# codeandbrain — ZarishSphere Development Environment
+# Managed by: codeandbrain/dotfiles (chezmoi)
+# DO NOT EDIT ~/.bashrc DIRECTLY
+# Edit via: chezmoi edit ~/.bashrc && chezmoi apply
+# =====================================================================
+
+# =====================================================================
+# §0 — GUARD: do nothing if not running interactively
+# =====================================================================
+case $- in
+    *i*) ;;
+      *) return;;
+esac
+
+# =====================================================================
+# §1 — UBUNTU BASE DEFAULTS (do not remove)
+# =====================================================================
+
+HISTCONTROL=ignoreboth
+HISTSIZE=10000
+HISTFILESIZE=20000
+shopt -s histappend
+shopt -s checkwinsize
+
+[ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
+
+if [ -z "${debian_chroot:-}" ] && [ -r /etc/debian_chroot ]; then
+    debian_chroot=$(cat /etc/debian_chroot)
+fi
+
+if [ -x /usr/bin/dircolors ]; then
+    test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
+    alias ls='ls --color=auto'
+    alias grep='grep --color=auto'
+    alias fgrep='fgrep --color=auto'
+    alias egrep='egrep --color=auto'
+fi
+
+alias ll='ls -alFh'
+alias la='ls -A'
+alias l='ls -CF'
+alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
+
+if [ -f ~/.bash_aliases ]; then
+    . ~/.bash_aliases
+fi
+
+if ! shopt -oq posix; then
+  if [ -f /usr/share/bash-completion/bash_completion ]; then
+    . /usr/share/bash-completion/bash_completion
+  elif [ -f /etc/bash_completion ]; then
+    . /etc/bash_completion
+  fi
+fi
+
+# =====================================================================
+# §2 — PATH: SAFE DEDUPLICATION
+# =====================================================================
+# This function adds a directory to PATH only if it is not already there.
+# Prevents the PATH duplication that happens when .bashrc is sourced
+# multiple times or when export commands are appended repeatedly.
+
+__add_to_path() {
+    case ":${PATH}:" in
+        *":$1:"*) ;;          # already in PATH — skip
+        *) export PATH="$1:$PATH" ;;
+    esac
+}
+
+__add_to_path "$HOME/.local/bin"
+__add_to_path "/usr/local/go/bin"
+__add_to_path "$HOME/go/bin"
+__add_to_path "$HOME/.cargo/bin"
+
+# =====================================================================
+# §3 — LANGUAGE RUNTIMES
+# =====================================================================
+
+# --- Go ---
+export GOPATH="$HOME/go"
+# Go binary: /usr/local/go (installed via tarball)
+# Verify: go version
+
+# --- Node via nvm ---
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+# Active version: Node v24.17.0 (set by: nvm use 24)
+# To switch: nvm use <version>
+
+# --- Rust (cargo) ---
+[ -f "$HOME/.cargo/env" ] && \. "$HOME/.cargo/env"
+# Rust installed via rustup — used for some AI CLI tools
+
+# =====================================================================
+# §4 — ZARISHSPHERE WORKSPACE PATHS
+# =====================================================================
+
+export ZS_HOME="$HOME/zarishsphere"
+
+# Individual repository paths
+export ZS_PLATFORM="$ZS_HOME/zs-platform"
+export ZS_CORE="$ZS_HOME/zs-core"
+export ZS_FHIR="$ZS_HOME/zs-fhir-server"
+export ZS_FHIR_G2A="$ZS_HOME/zs-fhir-g2a"
+export ZS_INDEX="$ZS_HOME/zarish-index"
+export ZS_STANDARDS="$ZS_HOME/zs-standards"
+export ZS_NOTE="$ZS_HOME/zarish-note"
+export ZS_DOCS="$ZS_HOME/zs-docs"
+export ZS_CONSOLE="$ZS_HOME/zs-console"
+export ZS_MARKETPLACE="$ZS_HOME/zs-marketplace"
+export ZS_BUILDER="$ZS_HOME/zs-builder"
+export ZS_FORMS="$ZS_HOME/zs-forms"
+export ZS_SDK="$ZS_HOME/zs-sdk"
+export ZS_CLI="$ZS_HOME/zs-cli"
+export ZS_API="$ZS_HOME/zs-api"
+export ZS_ENGINE="$ZS_HOME/zs-engine"
+export ZS_INFRA_CF="$ZS_HOME/zs-infra-cloudflare"
+export ZS_HEALTH="$ZS_HOME/zs-health"
+export ZS_EDUCATION="$ZS_HOME/zs-education"
+export ZS_LOGISTICS="$ZS_HOME/zs-logistics"
+export ZS_PROTECTION="$ZS_HOME/zs-protection"
+export ZS_WASH="$ZS_HOME/zs-wash"
+export ZS_NUTRITION="$ZS_HOME/zs-nutrition"
+export ZS_GITHUB="$ZS_HOME/.github"
+export ZS_DOTFILES="$HOME/dotfiles"
+
+# =====================================================================
+# §5 — NAVIGATION ALIASES
+# =====================================================================
+
+# Workspace root
+alias zs="cd $ZS_HOME && ls"
+alias zsls="ls -la $ZS_HOME"
+alias zs-dot="cd $ZS_DOTFILES && git status -sb 2>/dev/null || ls"
+
+# Platform & core repos
+alias zs-platform="cd $ZS_PLATFORM && git status -sb 2>/dev/null || ls"
+alias zs-core="cd $ZS_CORE && git status -sb 2>/dev/null || ls"
+alias zs-fhir="cd $ZS_FHIR && git status -sb 2>/dev/null || ls"
+alias zs-g2a="cd $ZS_FHIR_G2A && git status -sb 2>/dev/null || ls"
+alias zs-engine="cd $ZS_ENGINE && git status -sb 2>/dev/null || ls"
+
+# Index & standards
+alias zs-index="cd $ZS_INDEX && git status -sb 2>/dev/null || ls"
+alias zs-std="cd $ZS_STANDARDS && git status -sb 2>/dev/null || ls"
+
+# User-facing components
+alias zs-note="cd $ZS_NOTE && git status -sb 2>/dev/null || ls"
+alias zs-console="cd $ZS_CONSOLE && git status -sb 2>/dev/null || ls"
+alias zs-mkt="cd $ZS_MARKETPLACE && git status -sb 2>/dev/null || ls"
+alias zs-builder="cd $ZS_BUILDER && git status -sb 2>/dev/null || ls"
+alias zs-forms="cd $ZS_FORMS && git status -sb 2>/dev/null || ls"
+
+# Developer tools
+alias zs-sdk="cd $ZS_SDK && git status -sb 2>/dev/null || ls"
+alias zs-cli="cd $ZS_CLI && git status -sb 2>/dev/null || ls"
+alias zs-api="cd $ZS_API && git status -sb 2>/dev/null || ls"
+
+# Domain modules
+alias zs-health="cd $ZS_HEALTH && git status -sb 2>/dev/null || ls"
+alias zs-edu="cd $ZS_EDUCATION && git status -sb 2>/dev/null || ls"
+alias zs-logi="cd $ZS_LOGISTICS && git status -sb 2>/dev/null || ls"
+alias zs-prot="cd $ZS_PROTECTION && git status -sb 2>/dev/null || ls"
+alias zs-wash="cd $ZS_WASH && git status -sb 2>/dev/null || ls"
+alias zs-nut="cd $ZS_NUTRITION && git status -sb 2>/dev/null || ls"
+
+# Infrastructure & docs
+alias zs-cf="cd $ZS_INFRA_CF && git status -sb 2>/dev/null || ls"
+alias zs-docs="cd $ZS_DOCS && git status -sb 2>/dev/null || ls"
+alias zs-gh="cd $ZS_GITHUB && git status -sb 2>/dev/null || ls"
+
+# =====================================================================
+# §6 — GIT ALIASES
+# =====================================================================
+
+alias gs="git status -sb"
+alias ga="git add"
+alias gaa="git add --all"
+alias gc="git commit -m"
+alias gp="git push"
+alias gpf="git push --force-with-lease"
+alias gl="git pull"
+alias gf="git fetch --all --prune"
+alias glog="git log --oneline --graph --decorate --all"
+alias glast="git log -1 --stat"
+alias gb="git branch -vv"
+alias gco="git checkout"
+alias gcob="git checkout -b"
+alias gd="git diff"
+alias gds="git diff --staged"
+alias gunstage="git reset HEAD --"
+alias gundo="git reset --soft HEAD~1"
+alias gdiscard="git checkout --"
+
+# =====================================================================
+# §7 — WORKSPACE FUNCTIONS
+# =====================================================================
+
+# Show git status of every ZarishSphere repo at a glance
+zsstatus() {
+    echo "=== ZarishSphere Workspace Status ==="
+    local repos=(
+        "$ZS_PLATFORM" "$ZS_CORE" "$ZS_FHIR" "$ZS_FHIR_G2A"
+        "$ZS_INDEX" "$ZS_STANDARDS" "$ZS_NOTE" "$ZS_DOCS"
+        "$ZS_CONSOLE" "$ZS_MARKETPLACE" "$ZS_BUILDER" "$ZS_FORMS"
+        "$ZS_SDK" "$ZS_CLI" "$ZS_API" "$ZS_ENGINE"
+        "$ZS_HEALTH" "$ZS_EDUCATION" "$ZS_LOGISTICS"
+        "$ZS_PROTECTION" "$ZS_WASH" "$ZS_NUTRITION"
+        "$ZS_INFRA_CF" "$ZS_GITHUB" "$ZS_DOTFILES"
+    )
+    for repo in "${repos[@]}"; do
+        local name=$(basename "$repo")
+        if [ -d "$repo/.git" ]; then
+            local branch=$(git -C "$repo" rev-parse --abbrev-ref HEAD 2>/dev/null)
+            local dirty=$(git -C "$repo" status --porcelain 2>/dev/null | wc -l)
+            if [ "$dirty" -gt 0 ]; then
+                printf "  \e[33m✗\e[0m %-35s [\e[33m%s\e[0m] %s uncommitted\n" "$name" "$branch" "$dirty"
+            else
+                printf "  \e[32m✓\e[0m %-35s [\e[32m%s\e[0m]\n" "$name" "$branch"
+            fi
+        else
+            printf "  \e[90m—\e[0m %-35s [not cloned]\n" "$name"
+        fi
+    done
+}
+
+# Pull latest in all repos
+zspull() {
+    echo "=== Pulling all ZarishSphere repos ==="
+    local repos=(
+        "$ZS_PLATFORM" "$ZS_CORE" "$ZS_FHIR" "$ZS_FHIR_G2A"
+        "$ZS_INDEX" "$ZS_STANDARDS" "$ZS_NOTE" "$ZS_DOCS"
+        "$ZS_CONSOLE" "$ZS_MARKETPLACE" "$ZS_BUILDER" "$ZS_FORMS"
+        "$ZS_SDK" "$ZS_CLI" "$ZS_API" "$ZS_ENGINE"
+        "$ZS_HEALTH" "$ZS_EDUCATION" "$ZS_LOGISTICS"
+        "$ZS_PROTECTION" "$ZS_WASH" "$ZS_NUTRITION"
+        "$ZS_INFRA_CF" "$ZS_GITHUB"
+    )
+    for repo in "${repos[@]}"; do
+        if [ -d "$repo/.git" ]; then
+            printf "→ %-40s " "$(basename $repo)"
+            git -C "$repo" pull --ff-only 2>&1 | tail -1
+        fi
+    done
+    echo "=== Done ==="
+}
+
+# Clone all ZarishSphere org repos into ~/zarishsphere/
+zsclone() {
+    echo "=== Cloning ZarishSphere org repos ==="
+    mkdir -p "$ZS_HOME"
+    local repos=(
+        "zs-platform" "zs-core" "zs-fhir-server" "zs-fhir-g2a"
+        "zarish-index" "zs-standards" "zarish-note" "zs-docs"
+        "zs-console" "zs-marketplace" "zs-builder" "zs-forms"
+        "zs-sdk" "zs-cli" "zs-api" "zs-engine"
+        "zs-health" "zs-education" "zs-logistics"
+        "zs-protection" "zs-wash" "zs-nutrition"
+        "zs-infra-cloudflare" ".github"
+    )
+    for repo in "${repos[@]}"; do
+        if [ -d "$ZS_HOME/$repo/.git" ]; then
+            echo "→ $repo [already cloned — skipping]"
+        else
+            echo "→ Cloning $repo..."
+            git clone git@github.com:zarishsphere/$repo.git "$ZS_HOME/$repo" 2>&1 | tail -1
+        fi
+    done
+    echo "=== Done. Run 'zsstatus' to verify ==="
+}
+
+# Shallow clone one repo (for slow/mobile connections)
+# Usage: zsclone-shallow zs-fhir-server
+zsclone-shallow() {
+    [ -z "$1" ] && echo "Usage: zsclone-shallow <repo-name>" && return 1
+    git clone --depth=1 --single-branch --branch=main \
+        git@github.com:zarishsphere/$1.git "$ZS_HOME/$1" && \
+    echo "Shallow clone done. To get full history: git -C $ZS_HOME/$1 fetch --unshallow"
+}
+
+# Search all repos for a term
+# Usage: zsgrep "search term"
+zsgrep() {
+    [ -z "$1" ] && echo "Usage: zsgrep <pattern>" && return 1
+    grep -r --include="*.md" --include="*.yml" --include="*.yaml" \
+         --include="*.json" --include="*.go" -l "$1" "$ZS_HOME" 2>/dev/null
+}
+
+# Generate next ZI-UID for a domain
+# Usage: zi-uid HEALTH
+zi-uid() {
+    [ -z "$1" ] && echo "Usage: zi-uid <DOMAIN> (e.g. zi-uid HEALTH)" && return 1
+    local domain="${1^^}"
+    local count=$(find "$ZS_INDEX" -name "*.yml" 2>/dev/null | \
+                  xargs grep -l "ZI-${domain}" 2>/dev/null | wc -l)
+    local next=$(printf "%05d" $((count + 1)))
+    echo "ZI-${domain}-${next}"
+}
+
+# ZUSS naming compliance check in current directory
+zuss-check() {
+    echo "=== ZUSS naming check in $(pwd) ==="
+    find . -maxdepth 3 -not -path './.git/*' | grep '[A-Z]' | \
+        sed 's/^/  UPPERCASE: /'
+    find . -maxdepth 3 -not -path './.git/*' | grep ' ' | \
+        sed 's/^/  SPACE IN NAME: /'
+    find . -maxdepth 3 -name "*_*" -not -path './.git/*' | \
+        sed 's/^/  UNDERSCORE: /'
+    echo "Check complete."
+}
+
+# =====================================================================
+# §8 — DOCKER ALIASES
+# =====================================================================
+
+alias dcu="docker compose up -d"
+alias dcd="docker compose down"
+alias dcl="docker compose logs -f"
+alias dcs="docker compose ps"
+alias dcr="docker compose restart"
+alias dcb="docker compose build --no-cache"
+alias dps="docker ps --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}'"
+alias dclean="docker container prune -f && docker image prune -f"
+alias ddisk="docker system df"
+
+# =====================================================================
+# §9 — AI TOOL ALIASES
+# =====================================================================
+
+# Claude Code
+# Install: npm install -g @anthropic-ai/claude-code
+alias claude-code="claude"
+alias cc="claude"
+
+# Gemini CLI
+# Install: npm install -g @google/gemini-cli
+alias gemini-chat="gemini"
+
+# OpenCode (binary in ~/.local/bin)
+# Already available as: opencode
+alias oc="opencode"
+
+# Aider (Python AI coding assistant)
+# Install: pip install aider-chat
+alias ai-code="aider"
+
+# Ollama (local LLMs)
+# Install: curl -fsSL https://ollama.com/install.sh | sh
+alias ollama-list="ollama list"
+alias ollama-run-llama="ollama run llama3.2"
+alias ollama-run-phi="ollama run phi4"
+alias ollama-run-mistral="ollama run mistral"
+alias ollama-stop="ollama stop"
+
+# =====================================================================
+# §10 — GITHUB CLI HELPERS
+# =====================================================================
+
+alias issues="gh issue list"
+alias prs="gh pr list"
+alias pr-create="gh pr create --web"
+alias zs-issues="gh issue list --repo zarishsphere/zs-core"
+
+# Clone a repo from the ZarishSphere org
+# Usage: zsgh-clone zs-fhir-server
+zsgh-clone() {
+    [ -z "$1" ] && echo "Usage: zsgh-clone <repo-name>" && return 1
+    gh repo clone "zarishsphere/$1" "$ZS_HOME/$1"
+}
+
+# Open a ZarishSphere repo in the browser
+# Usage: zsopen-repo zs-fhir-server
+zsopen-repo() {
+    [ -z "$1" ] && echo "Usage: zsopen-repo <repo-name>" && return 1
+    gh repo view "zarishsphere/$1" --web
+}
+
+# =====================================================================
+# §11 — NETWORK & CONNECTIVITY
+# =====================================================================
+
+alias netcheck="ping -c 3 github.com"
+alias ghcheck="curl -s -o /dev/null -w '%{http_code}' https://api.github.com && echo ' GitHub OK'"
+alias zscheck="curl -s -o /dev/null -w '%{http_code}' https://zarishsphere.com && echo ' zarishsphere.com OK'"
+alias myip="ip addr show wlp2s0 | grep 'inet ' | awk '{print \$2}'"
+
+# =====================================================================
+# §12 — SYSTEM HEALTH
+# =====================================================================
+
+# Quick resource check (important on 7GB RAM machine)
+alias syscheck="echo '=== RAM ===' && free -h && echo '' && echo '=== Disk ===' && df -h / && echo '' && echo '=== Load ===' && uptime"
+
+# Check all installed tool versions at once
+zstools() {
+    echo "=== ZarishSphere Toolchain ==="
+    printf "  %-12s %s\n" "go"      "$(go version 2>/dev/null || echo 'NOT FOUND')"
+    printf "  %-12s %s\n" "node"    "$(node --version 2>/dev/null || echo 'NOT FOUND')"
+    printf "  %-12s %s\n" "npm"     "$(npm --version 2>/dev/null || echo 'NOT FOUND')"
+    printf "  %-12s %s\n" "pnpm"    "$(pnpm --version 2>/dev/null || echo 'NOT FOUND')"
+    printf "  %-12s %s\n" "git"     "$(git --version 2>/dev/null || echo 'NOT FOUND')"
+    printf "  %-12s %s\n" "gh"      "$(gh --version 2>/dev/null | head -1 || echo 'NOT FOUND')"
+    printf "  %-12s %s\n" "docker"  "$(docker --version 2>/dev/null || echo 'NOT INSTALLED')"
+    printf "  %-12s %s\n" "claude"  "$(claude --version 2>/dev/null || echo 'NOT INSTALLED')"
+    printf "  %-12s %s\n" "gemini"  "$(gemini --version 2>/dev/null || echo 'NOT INSTALLED')"
+    printf "  %-12s %s\n" "opencode" "$(opencode --version 2>/dev/null || echo 'NOT INSTALLED')"
+    printf "  %-12s %s\n" "ollama"  "$(ollama --version 2>/dev/null || echo 'NOT INSTALLED')"
+    printf "  %-12s %s\n" "chezmoi" "$(chezmoi --version 2>/dev/null | head -1 || echo 'NOT INSTALLED')"
+}
+
+# =====================================================================
+# §13 — PROMPT
+# =====================================================================
+# Shows: user@host : dir (git-branch) $
+# Green = clean branch, Yellow = uncommitted changes
+
+__zs_git_prompt() {
+    local branch
+    branch=$(git rev-parse --abbrev-ref HEAD 2>/dev/null) || return
+    local dirty=$(git status --porcelain 2>/dev/null | wc -l)
+    if [ "$dirty" -gt 0 ]; then
+        echo -e " \e[33m($branch ✗)\e[0m"
+    else
+        echo -e " \e[32m($branch)\e[0m"
+    fi
+}
+
+PS1='\[\e[36m\]\u@\h\[\e[0m\]:\[\e[34m\]\w\[\e[0m\]$(__zs_git_prompt)\$ '
+
+# =====================================================================
+# §14 — COMPLETIONS
+# =====================================================================
+
+command -v gh &>/dev/null && eval "$(gh completion -s bash)"
+command -v chezmoi &>/dev/null && eval "$(chezmoi completion bash)"
+
+# =====================================================================
+# END
+# =====================================================================
+# To reload without restarting terminal: source ~/.bashrc
+# To edit this file: chezmoi edit ~/.bashrc && chezmoi apply
+# Source repo: https://github.com/codeandbrain/dotfiles

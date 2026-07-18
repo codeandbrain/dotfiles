@@ -1,0 +1,150 @@
+# ~/.gitconfig
+# codeandbrain — Git Identity and Workflow Configuration
+# Managed by: codeandbrain/dotfiles (chezmoi)
+# DO NOT EDIT ~/.gitconfig DIRECTLY
+# =====================================================================
+
+[user]
+    name  = Mohammad Ariful Islam
+    email = code.and.brain@gmail.com
+    # DEV COMMIT IDENTITY — registered to GitHub account: codeandbrain
+    # For ZarishSphere org work via arwazarish, use the [includeIf] below
+
+[init]
+    defaultBranch = main
+
+[core]
+    editor     = nano
+    autocrlf   = input
+    pager      = less -FX
+    whitespace = trailing-space,space-before-tab
+
+[pull]
+    rebase = false
+
+[push]
+    default         = current
+    autoSetupRemote = true
+
+[fetch]
+    prune = true
+
+[merge]
+    ff = false
+
+[diff]
+    colorMoved = zebra
+
+[status]
+    showUntrackedFiles = all
+
+# =====================================================================
+# AUTHENTICATION — SSH for all GitHub operations
+# =====================================================================
+# This replaces the gh-auth credential helper with SSH key auth.
+# Requires: SSH key generated and registered on GitHub.
+# See: scripts/bootstrap.sh §SSH setup
+
+[url "git@github.com:"]
+    insteadOf = https://github.com/
+
+# =====================================================================
+# COMMIT MESSAGE TEMPLATE
+# =====================================================================
+
+[commit]
+    template = ~/.gitmessage
+
+# =====================================================================
+# ALIASES
+# =====================================================================
+
+[alias]
+    s      = status -sb
+    l      = log --oneline --graph --decorate --all
+    ll     = log --oneline --graph --decorate -20
+    last   = log -1 --stat
+    d      = diff
+    ds     = diff --staged
+    b      = branch -vv
+    co     = checkout
+    cob    = checkout -b
+    c      = commit -m
+    ca     = commit --amend --no-edit
+    cam    = commit --amend
+    p      = push
+    pf     = push --force-with-lease
+    pl     = pull
+    f      = fetch --all --prune
+    unstage = reset HEAD --
+    undo   = reset --soft HEAD~1
+    discard = checkout --
+    who    = shortlog -sn --no-merges
+
+# =====================================================================
+# COLOUR
+# =====================================================================
+
+[color]
+    ui = auto
+
+[color "branch"]
+    current = yellow bold
+    local   = green
+    remote  = red
+
+[color "diff"]
+    meta = yellow bold
+    frag = magenta bold
+    old  = red bold
+    new  = green bold
+
+[color "status"]
+    added     = green bold
+    changed   = yellow bold
+    untracked = red
+
+# =====================================================================
+# PERFORMANCE — mobile broadband optimisation
+# =====================================================================
+
+[pack]
+    threads = 0
+
+[http]
+    postBuffer = 524288000
+
+# =====================================================================
+# CONDITIONAL IDENTITY OVERRIDE
+# =====================================================================
+# When working in ~/zarishsphere/ as arwazarish (org account),
+# git will auto-use a separate identity.
+# Create ~/.gitconfig-zarishsphere with:
+#
+#   [user]
+#       name  = Mohammad Ariful Islam
+#       email = code.and.brain@gmail.com
+#   [github]
+#       user = arwazarish
+
+[includeIf "gitdir:~/zarishsphere/"]
+    path = ~/.gitconfig-zarishsphere
+
+# For CPI work (separate identity):
+# [includeIf "gitdir:~/cpi/"]
+#     path = ~/.gitconfig-cpi
+#
+# Create ~/.gitconfig-cpi with:
+#   [user]
+#       name  = Mohammad Ariful Islam
+#       email = healthbgd@cpintl.org
+
+# =====================================================================
+# GIT LFS (already configured — keeping for compatibility)
+# =====================================================================
+
+[filter "lfs"]
+    clean    = git-lfs clean -- %f
+    smudge   = git-lfs smudge -- %f
+    process  = git-lfs filter-process
+    required = true
