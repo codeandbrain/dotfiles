@@ -1,0 +1,55 @@
+{
+  "_comment": "VS Code extension list for ZarishSphere development",
+  "_how_to_install": "Open VS Code terminal and run: cat ~/dotfiles/tools/vscode-extensions.json | python3 -c \"import sys,json; [print(e) for e in json.load(sys.stdin)['extensions']]\" | xargs -L1 code --install-extension",
+  "_managed_by": "codeandbrain/dotfiles",
+
+  "extensions": [
+
+    "-- AI CODING AGENTS --",
+    "continue.continue",
+    "saoudrizwan.claude-dev",
+
+    "-- GITHUB --",
+    "github.copilot",
+    "github.copilot-chat",
+    "github.vscode-github-actions",
+    "github.vscode-pull-request-github",
+    "eamodio.gitlens",
+
+    "-- GO (ZarishSphere primary language) --",
+    "golang.go",
+
+    "-- JAVASCRIPT / NODE --",
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+
+    "-- DOCKER --",
+    "ms-azuretools.vscode-docker",
+    "ms-vscode-remote.remote-containers",
+
+    "-- MARKDOWN & DOCS --",
+    "yzhang.markdown-all-in-one",
+    "davidanson.vscode-markdownlint",
+    "bierner.markdown-preview-github-styles",
+
+    "-- YAML & JSON --",
+    "redhat.vscode-yaml",
+    "zainchen.json",
+
+    "-- FHIR (ZarishSphere health data standard) --",
+    "healex.healex-fhir-tools",
+
+    "-- REMOTE & SSH --",
+    "ms-vscode-remote.remote-ssh",
+    "ms-vscode-remote.remote-ssh-edit",
+
+    "-- FILE UTILITIES --",
+    "streetsidesoftware.code-spell-checker",
+    "gruntfuggly.todo-tree",
+    "editorconfig.editorconfig",
+
+    "-- THEMES (optional) --",
+    "pkief.material-icon-theme",
+    "github.github-vscode-theme"
+  ]
+}
