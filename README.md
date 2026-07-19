@@ -1,10 +1,12 @@
 # dotfiles
 ## codeandbrain — Personal Development Environment
 
-**Machine:** Lenovo · Linux Mint / Linux Lite / Ubuntu 26 · i5-12450H · 7GB RAM  
-**Customized Repository:** [codeandbrain/dotfiles](https://github.com/codeandbrain/dotfiles)  
-**Managed by:** [chezmoi](https://www.chezmoi.io/) — dotfiles manager  
+**Machine:** Lenovo · Linux Mint 22.3 (Cinnamon) / Linux Lite 7.8 / Ubuntu 26.04 LTS · i5-12450H · 8GB RAM / 512GB SSD
+**Customized Repository:** [codeandbrain/dotfiles](https://github.com/codeandbrain/dotfiles)
+**Managed by:** [chezmoi](https://www.chezmoi.io/) — dotfiles manager
 **Status:** V2 · AI-Enhanced & Sandboxed
+
+> **Portability note:** nothing in this repo should assume a specific OS flavour, hostname, or local username. If you find a hardcoded assumption, it's a bug — file it.
 
 ---
 
@@ -23,17 +25,38 @@
 | Secondary mobile | +880 1684 364243 |
 | Personal email | code.and.brain@gmail.com |
 
+### 1.1 GitHub accounts
+
+| Account | Email | Role (assumed — confirm) |
+|---|---|---|
+| `codeandbrain` | code.and.brain@gmail.com | Default/personal identity (this dotfiles repo, personal projects) |
+| `arwazarish` | zarishsphere@gmail.com | Org-management identity for `zsdotcom` |
+| `devopsariful` | dev43ariful@gmail.com | DevOps/CI/automation identity |
+
+**GitHub Organization:** https://github.com/zsdotcom *(renamed from `zarishsphere` — old org URL is no longer used)*
+**Org email:** platform@zarishsphere.com
+
+### 1.2 Other platform accounts
+
+| Platform | URL |
+|---|---|
+| GitLab (free) | https://gitlab.com/zarishsphere.org |
+| npm organization | https://www.npmjs.com/settings/zarishsphere/packages |
+| Docker Hub | https://hub.docker.com/u/zarishsphere |
+| Custom domain (Cloudflare, free tier) | zarishsphere.com |
+
 ---
 
 ## What this repo does (V2 Enhancements)
 
-This repository is the **single source of truth** for the development environment on this machine. Every configuration file, tool setting, alias, and shell behavior is stored here. With V2, we've introduced significant enhancements:
+This repository is the **single source of truth** for the development environment on this machine. Every configuration file, tool setting, alias, and shell behavior is stored here.
 
-*   **Automated Version Management:** All tools and dependencies are now automatically checked for updates via GitHub Actions and Gemini CLI. This ensures you always have the latest stable versions without manual intervention.
-*   **Sandboxed Environment with DevPod:** A reproducible and isolated development environment is provided using DevPod. This prevents conflicts with your host system and ensures a consistent setup across different machines.
-*   **GUI-Friendly for Newcomers:** The setup process is streamlined for Linux newcomers, emphasizing GUI-based tools and simplified commands.
+*   **Automated Version Management:** All tools and dependencies are automatically checked for updates via GitHub Actions and Gemini CLI.
+*   **Sandboxed Environment with DevPod:** A reproducible, isolated development environment via DevPod. All AI/agent work, inputs, and outputs stay inside the sandbox — nothing touches the host machine's settings, and nothing is tied to the host's username or OS flavour.
+*   **GUI-Friendly for Newcomers:** Streamlined setup emphasizing GUI-based tools; CLI is always exact, copy-paste, numbered steps.
+*   **No telemetry by default:** No tool in this stack is configured to phone home usage data. If a tool ships telemetry, it is disabled in its config file here (see `tools/manifest.md`).
 
-It does **not** contain ZarishSphere platform code — that lives in the [zarishsphere](https://github.com/zarishsphere) org. This repo manages *how the machine works*, not *what is being built*.
+It does **not** contain ZarishSphere platform code — that lives in the [zsdotcom](https://github.com/zsdotcom) org. This repo manages *how the machine works*, not *what is being built*.
 
 ---
 
@@ -44,14 +67,16 @@ codeandbrain/dotfiles/
 ├── README.md                        ← you are here
 │
 ├── .github/workflows/               ← GitHub Actions for automated maintenance
-│   └── auto-update-versions.yml     ← Automatically checks and updates tool versions
+│   └── auto-update-versions.yml
 │
-├── devpod/                          ← DevPod configuration for sandboxed environments
-│   └── devpod.yaml                  ← Defines the isolated development environment
+├── devpod/
+│   └── devpod.yaml                  ← isolated development environment definition
 │
 ├── home/                            ← files that live in ~/ on the machine
 │   ├── dot_bashrc                   → ~/.bashrc
 │   ├── dot_gitconfig                → ~/.gitconfig
+│   ├── dot_gitconfig-zsdotcom       → ~/.gitconfig-zsdotcom   (identity: arwazarish)
+│   ├── dot_gitconfig-devops         → ~/.gitconfig-devops     (identity: devopsariful)
 │   ├── dot_gitmessage               → ~/.gitmessage
 │   ├── dot_npmrc                    → ~/.npmrc
 │   └── dot_config/
@@ -62,68 +87,67 @@ codeandbrain/dotfiles/
 ├── tools/
 │   ├── manifest.md                  ← pinned tool versions — source of truth for automation
 │   ├── ai-setup.md                  ← multi-AI tool configuration guide
-│   └── vscode-extensions.json       ← VS Code extension list
+│   └── vscode-extensions.json
 │
 └── scripts/
-    └── bootstrap.sh                 ← one-command machine setup (run once)
+    └── bootstrap.sh                 ← one-command sandbox setup (run once, inside DevPod)
 ```
 
-**`dot_` prefix:** chezmoi convention. `dot_bashrc` in this repo becomes `.bashrc` on the machine. The dot prefix prevents files from being invisible inside the repo.
+**`dot_` prefix:** chezmoi convention. `dot_bashrc` in this repo becomes `.bashrc` on the machine.
 
 ---
 
-## How to apply these files (GUI-Friendly Setup)
+## Multi-account git identity (GUI-optional, but this part needs a text edit)
 
-This setup is designed to be as simple as possible for Linux newcomers. We'll use DevPod to create an isolated environment, and `chezmoi` to manage your dotfiles within it.
+Three identities are wired up via `[includeIf]` in `~/.gitconfig`:
 
-### 1. Install DevPod (Graphical User Interface)
+| Working directory | Identity used | Config file |
+|---|---|---|
+| Anything else | `codeandbrain` (default) | `~/.gitconfig` |
+| `~/zarishsphere/` (zsdotcom org work) | `arwazarish` | `~/.gitconfig-zsdotcom` |
+| `~/devops/` (CI/automation work) | `devopsariful` | `~/.gitconfig-devops` |
 
-DevPod provides a desktop application for Linux that makes managing sandboxed environments easy. Download and install it from the official website:
+You don't need to remember which is which day-to-day — just work inside the right folder and git picks the identity automatically. Nothing here depends on your OS username; it's keyed entirely on folder path.
 
-*   **Download DevPod Desktop:** [https://devpod.sh/docs/getting-started/install/](https://devpod.sh/docs/getting-started/install/)
+**If you already have cloned repos pointing at the old `zarishsphere` org**, repoint them (run once per repo):
+```bash
+git remote set-url origin git@github.com:zsdotcom/<repo-name>.git
+```
 
-Follow the installation instructions for your Linux distribution. Once installed, launch the DevPod application.
+---
 
-### 2. Create Your ZarishSphere DevPod
+## GUI-Friendly Setup
 
-1.  **Clone this repository:** If you haven't already, clone this `dotfiles` repository to your local machine.
+### 1. Install DevPod (Desktop GUI)
+*   **Download:** https://devpod.sh/docs/getting-started/install/
+
+### 2. Create Your Sandbox
+
+1.  Clone this repo:
     ```bash
     gh repo clone codeandbrain/dotfiles
     cd dotfiles
     ```
-2.  **Launch DevPod UI:** Open your terminal and run:
+2.  Launch the DevPod UI:
     ```bash
     devpod ui &
     ```
-    This will open the DevPod graphical interface in your web browser.
-3.  **Import DevPod Configuration:** In the DevPod UI, navigate to the option to import a workspace. Point it to the `devpod/devpod.yaml` file within your cloned `dotfiles` repository.
-4.  **Start the DevPod:** Follow the prompts in the DevPod UI to create and start your `zarishsphere-devpod` workspace. This will automatically:
-    *   Set up an isolated Ubuntu environment.
-    *   Run the `bootstrap.sh` script to install all necessary tools (Go, Node.js, pnpm, GitHub CLI, chezmoi, Docker, AI tools like Gemini CLI and Ollama).
-    *   Apply your `chezmoi` dotfiles to personalize the environment.
-    *   Start Ollama and Open WebUI for local AI interactions.
+3.  In the DevPod UI, import `devpod/devpod.yaml` from your cloned repo.
+4.  Start the workspace. This automatically sets up an isolated environment, runs `bootstrap.sh`, applies your `chezmoi` dotfiles, and starts local AI services — all inside the sandbox, never on the host.
 
-### 3. Automated Dotfile Updates (via GitHub)
-
-This repository is configured with a GitHub Action that automatically checks for and proposes updates to your tool versions. You'll receive a Pull Request on GitHub when new stable versions are available. To merge these updates:
-
-1.  **Go to your GitHub repository:** [https://github.com/codeandbrain/dotfiles](https://github.com/codeandbrain/dotfiles)
-2.  **Review Pull Requests:** Look for open Pull Requests titled "Automated: Update tool versions in manifest.md".
-3.  **Merge the PR:** Review the proposed changes and, if satisfied, click the "Merge pull request" button. This will update your `manifest.md` and ensure your DevPod environment stays up-to-date the next time it's started or refreshed.
+### 3. Automated Dotfile Updates
+A GitHub Action opens a PR titled "Automated: Update tool versions in manifest.md" whenever new stable tool versions are found. Review and merge from: https://github.com/codeandbrain/dotfiles
 
 ---
 
 ## ZarishSphere workspace
 
-After your DevPod is running and dotfiles are applied, you can clone the ZarishSphere workspace within your DevPod environment:
-
 ```bash
 zsclone
 ```
-
-This function (defined in `dot_bashrc`) clones every ZarishSphere org repo into `~/zarishsphere/`.
+Clones every `zsdotcom` org repo into `~/zarishsphere/` (local folder name kept for continuity — only the remote org changed).
 
 ---
 
-*ZarishSphere Foundation · V2 · 2026*  
+*ZarishSphere Foundation · V2 · 2026*
 *License: Apache 2.0 (code) · CC BY 4.0 (documentation)*
