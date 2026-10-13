@@ -4,7 +4,7 @@ Dotfile Composer is an early web-app prototype for preparing a settings file and
 
 It is designed for people who would rather use a visual form than work directly with Git. The intended flow is to edit a sample Git configuration, preview it, and ask the app to create a branch and pull request. A pull request is a proposed change for you to review; it does not change the repository's main branch by itself.
 
-> **Current status:** This is an early local prototype, not a finished no-code product. The source includes an editor and preview, and the backend contains code for a single-repository pull request. The checked-in frontend currently imports a missing stylesheet, so the page may fail to start. Even after that is fixed, browser-to-backend access is not enabled for cross-origin requests, so submitting from the page may be blocked. Do not rely on the full GitHub flow until both issues are fixed and tested. There is no sign-in, repository picker, ready-made profile library, visual block editor, multi-repository apply, or change-history screen.
+> **Current status:** This is an early local prototype, not a finished no-code product. The editor and preview are present, and the backend contains code for a single-repository pull request. Browser-to-backend access is not enabled for cross-origin requests, so submitting from the page may be blocked. Do not rely on the full GitHub flow until that connection is fixed and tested. There is no sign-in, repository picker, ready-made profile library, visual block editor, multi-repository apply, or change-history screen.
 
 ## What the prototype is designed to do
 
@@ -25,7 +25,7 @@ The project and its local development tools are free to use. Installing packages
 
 ## Try the local preview
 
-The steps below start the development server if the project files and dependencies are in working order. If you see a `globals.css` error, the project needs a code fix before the page can open.
+The steps below start the development server after installing the project tools.
 
 ### 1. Open the project
 
@@ -100,6 +100,7 @@ If you need to look up an App installation ID, see [infra/README_INSTALLATIONS.m
 | --- | --- |
 | [frontend/app/page.tsx](./frontend/app/page.tsx) | The composer page: fields, editor, preview, and submit button. |
 | [frontend/app/layout.tsx](./frontend/app/layout.tsx) | The browser page title and shared page setup. |
+| [frontend/app/globals.css](./frontend/app/globals.css) | The page colors, spacing, and mobile layout. |
 | [frontend/package.json](./frontend/package.json) | Frontend tools and commands. |
 | [frontend/tsconfig.json](./frontend/tsconfig.json) | Frontend TypeScript settings. |
 | [frontend/next.config.js](./frontend/next.config.js) | Frontend framework settings. |

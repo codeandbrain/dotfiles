@@ -47,7 +47,7 @@ Do not share screenshots of this file. It contains credentials that allow access
 
 ## Start the local preview
 
-After the missing stylesheet issue noted in the project README is fixed, use the editor and preview by opening a terminal in Visual Studio Code and using this working directory:
+To use the editor and preview, open a terminal in Visual Studio Code and use this working directory:
 
 `/home/ariful/projects/dotfile`
 
@@ -61,7 +61,7 @@ npm run dev
 
 Keep the terminal open and open <http://localhost:3000> in your browser. The preview does not require a GitHub App. Starting the backend separately does not remove the browser-to-backend limitation described above.
 
-After the missing stylesheet is restored and browser-to-backend access is implemented and tested, the backend can be started in a second terminal with:
+After browser-to-backend access is implemented and tested, the backend can be started in a second terminal with:
 
 ```bash
 npm run dev:backend

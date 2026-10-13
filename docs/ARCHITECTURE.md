@@ -18,7 +18,7 @@ A pull request is a proposed change. It gives the repository owner a chance to r
 6. GitHub receives a request to create or use a branch, write the file, and open a pull request.
 7. The browser displays the pull request link or an error message.
 
-This end-to-end flow is not currently ready to use. The frontend imports a global stylesheet that is missing from the checked-in app folder, and the backend does not yet allow the browser's cross-origin request. The page may fail to start, and submitting from it may be blocked even after the page can start.
+This end-to-end flow is not currently ready to use. The backend does not yet allow the browser's cross-origin request, so submitting from the page may be blocked.
 
 ## Main parts
 
@@ -36,7 +36,6 @@ There is also a cache helper in `backend/src/cache.ts` that supports Redis or in
 
 The current app does not include:
 
-- the global stylesheet imported by the frontend page
 - browser permission to connect to the backend from the frontend's different local port
 - user sign-in or account management
 - a page that lists repositories or installations for selection
