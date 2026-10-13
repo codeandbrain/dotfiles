@@ -8,6 +8,7 @@ export type Repository = {
   forks_count: number;
   updated_at: string;
   html_url: string;
+  archived?: boolean;
 };
 
 export type Organization = {
