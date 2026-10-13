@@ -5,5 +5,7 @@
     "git.autoStash": true,
     "git.branchProtectionPrompt": "alwaysCommit",
     "git.rebaseWhenSync": true,
-    "git.pullBeforeCheckout": true
+    "git.pullBeforeCheckout": true,
+    "typescript.enablePromptUseWorkspaceTsdk": true,
+    "typescript.tsdk": "node_modules/typescript/lib"
 }
