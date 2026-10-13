@@ -1,104 +1,76 @@
-# GitHub App onboarding (GUI-first)
+# Set up a GitHub App for Dotfile Composer
 
-What
-- A ready-to-use GitHub App manifest is checked into infra/manifest.yml.
-- This document shows GUI-first, step-by-step instructions to create the GitHub App from that manifest, install it into an account/org, generate required credentials, and configure the local prototype.
+## What this setup is for
 
-Why
-- A GitHub App is the recommended integration because it supports multi-organization installs with scoped installation tokens and least-privilege permissions.
-- Using the manifest makes registration fast and repeatable without hand-copying permissions.
+A GitHub App gives this prototype permission to create a branch, update a file, and open a pull request in a repository you choose.
 
-When
-- Do this before attempting to use the backend with real repositories or before running end-to-end tests that touch GitHub.
+You do **not** need this setup just to open the local website and preview a dotfile. Set it up only when you are ready to try a real pull request.
 
-How (GUI-first)
+## Important before you begin
 
-Step 1 — Prepare
-- Working directory on your machine: ~/projects/dotfile
-- Ensure you have a GitHub account and admin permissions for any org you will install the app into.
+- Use a test repository first.
+- You need permission to create a GitHub App and install it on the account or organization that owns the test repository.
+- Keep the private key secret. It belongs in the private `.env` file on your computer, never in the browser or in a public GitHub repository.
+- This prototype does not implement GitHub sign-in or webhooks. The example manifest contains placeholder callback and webhook URLs; they are not working services. Do not set up a tunnel for this prototype.
+- The browser currently cannot submit to the backend because cross-origin access is not enabled. App setup alone will not make pull request submission work; wait until that connection has been fixed and tested before trying a real repository.
+- The example manifest requests more permissions than the current composer uses. Request only repository **Contents: Read and write** and **Pull requests: Read and write** for this workflow. Repository metadata access is normally provided for installed repositories.
 
-Step 2 — Create the GitHub App from manifest (fast, GUI)
-1. Open the GitHub "Create a GitHub App from a manifest" page in your browser:
-   - https://github.com/settings/apps/new
-2. Choose the option "Create GitHub App" and paste the contents of infra/manifest.yml into the manifest field, or upload the file if prompted.
-3. Click "Create GitHub App".
+## Create and install the App in GitHub
 
-Step 3 — Configure the app (GUI)
-1. After creation, on the App settings page, set the following:
-   - Homepage URL: https://example.com (replace with your deployed URL later)
-   - Webhook URL: use your backend webhook URL (for local testing see Step 6)
-   - Webhook secret: leave blank (or set one and record it in your .env)
-2. Confirm permissions match what's in infra/manifest.yml. Adjust only if you understand the permission impact.
+GitHub's page labels can change. In your browser:
 
-Step 4 — Generate credentials (GUI)
-1. On the App page, create and download a private key. Save it securely.
-2. Copy the App ID (displayed on the app settings page).
-3. If present, copy Client ID and Client Secret (needed if you later add OAuth user flows).
+1. Open your GitHub account settings and go to **Developer settings → GitHub Apps**.
+2. Choose **New GitHub App**.
+3. Give the App a recognizable name, such as `Dotfile Composer Test`.
+4. For the homepage URL, use the project's GitHub page: <https://github.com/codeandbrain/dotfile>.
+5. Leave webhooks disabled if GitHub offers that choice. The prototype does not receive webhook events.
+6. In **Repository permissions**, grant:
+   - **Contents:** Read and write. This lets the App create a branch and write the requested file.
+   - **Pull requests:** Read and write. This lets the App open a pull request for review.
+7. Save the App.
+8. On the App settings page, copy the **App ID**.
+9. In the **Private keys** section, choose **Generate a private key** and save the downloaded key somewhere private on your computer. Do not upload it to GitHub or send it to anyone.
+10. Use **Install App** to install it on your personal account or organization. Select only your test repository.
 
-Step 5 — Install the app (GUI)
-1. Click "Install App" on the app settings page.
-2. Choose to install on your personal account and any organization where you have admin rights.
-3. Choose repositories to grant access to (start with a single test repo).
-4. After installation, record the installation ID from the installation URL: when viewing the installation in the browser the URL path contains `/settings/installations/<installation_id>` — copy that numeric ID.
+The optional client ID, client secret, OAuth callback URL, webhook secret, and installation ID are not needed for the current create-pull-request workflow.
 
-Step 6 — Local testing (GUI + lightweight tunnel)
-- For local testing you need the backend reachable by GitHub for webhooks and OAuth redirects. Use a free tunnel service: localtunnel (npx localtunnel) or expose the backend via a temporary public URL.
+## Add the credentials to your local project
 
-If you prefer CLI one-liners (copy-paste safe):
-Working directory: ~/projects/dotfile
-1) Ensure you're in the repo root:
-   cd ~/projects/dotfile
+1. Open the project folder in Visual Studio Code.
+2. In the file list, open `.env.example`.
+3. Choose **File → Save As…** and save a copy named `.env` in the project root, next to `package.json`.
+4. In `.env`, enter your App ID after `GITHUB_APP_ID=`.
+5. Open the downloaded private key in a text editor, copy its complete contents, and put it after `GITHUB_APP_PRIVATE_KEY=`. Keep the key's beginning and ending lines. The example uses `\n` between lines to represent line breaks.
+6. Save `.env`. The project is configured to keep `.env` out of Git.
 
-2) Start the backend in dev mode (in a separate terminal window):
-   npm run dev:backend
+Do not share screenshots of this file. It contains credentials that allow access to repositories where the App is installed.
 
-3) Start a local tunnel to expose port 4000 (open a new terminal):
-   # working directory: any (we'll use home)
-   cd ~
+## Start the local preview
 
-   npx localtunnel --port 4000 --subdomain dotfile-demo-$(date +%s)
+After the missing stylesheet issue noted in the project README is fixed, use the editor and preview by opening a terminal in Visual Studio Code and using this working directory:
 
-   # localtunnel prints a public URL like https://dotfile-demo-123456.loca.lt
-   # Copy that URL and set it in the App settings as the "Webhook URL" and "Homepage URL" (use /webhook and /auth/callback paths accordingly)
+`/home/ariful/projects/dotfile`
 
-Step 7 — Configure environment and run the prototype (GUI-first with small CLI steps)
-1. Copy the example env file:
-   Working directory: ~/projects/dotfile
-   cp .env.example .env
+If the project is saved somewhere else, use that folder instead.
 
-2. Edit .env using a text editor and set these values from the GitHub App page:
-   - GITHUB_APP_ID=<App ID you copied>
-   - GITHUB_APP_PRIVATE_KEY="-----BEGIN RSA PRIVATE KEY-----\n...\n-----END RSA PRIVATE KEY-----"
-   - GITHUB_APP_INSTALLATION_ID=<installation id from Step 5>
-   - NEXT_PUBLIC_BACKEND_URL=<the tunnel URL from Step 6, e.g. https://dotfile-demo-123456.loca.lt>
+Run:
 
-3. Start frontend and backend locally (two terminals):
-   Terminal 1 (frontend):
-   Working directory: ~/projects/dotfile
-   npm run dev
+```bash
+npm run dev
+```
 
-   Terminal 2 (backend):
-   Working directory: ~/projects/dotfile
-   npm run dev:backend
+Keep the terminal open and open <http://localhost:3000> in your browser. The preview does not require a GitHub App. Starting the backend separately does not remove the browser-to-backend limitation described above.
 
-4. Open the frontend at http://localhost:3000 and try creating a PR using the composer.
+After the missing stylesheet is restored and browser-to-backend access is implemented and tested, the backend can be started in a second terminal with:
 
-How to confirm the app works (GUI checks)
-- After submitting from the frontend, you should see a new branch and pull request in the target repository.
-- Check the backend logs (terminal) for success messages from the Octokit calls.
+```bash
+npm run dev:backend
+```
 
-Troubleshooting (GUI-first)
-- If GitHub reports webhook delivery failures, check the public tunnel URL and webhook URL in the app settings.
-- If authentication fails, re-check GITHUB_APP_ID and GITHUB_APP_PRIVATE_KEY formatting (newlines must be preserved).
-- If permission errors occur, ensure the installation was granted access to the target repository.
+At that point, use a test repository and confirm a pull request appears on GitHub. Review the proposed file change there. This prototype does not merge pull requests.
 
-Security and next steps
-- When moving to staging or production, host the backend on a public, stable URL and replace temporary tunnel endpoints.
-- Store the private key in a secure secret store (do not commit it to the repo). For zero-cost options, consider environment variables on your host or GitHub Actions secrets.
-- Enforce webhook signature verification in the backend before processing webhooks.
+## Optional: find the installation ID
 
-If you want, I will now:
-- (A) Add the manifest to .github/manifest.yml to make it directly available from the repo settings (done: infra/manifest.yml added).
-- (B) Create a step-by-step script to programmatically list installations and retrieve installation IDs using the GitHub REST API and JWT (CLI fallback).  
+The current composer finds the App installation from the account and repository name you enter. You do not need to look up or enter the installation ID to create a pull request.
 
-Reply "B" if you want the programmatic CLI steps added to the repo as a helper script; otherwise say "Done" and I will stop here.
+If you have another reason to find it, see [README_INSTALLATIONS.md](../infra/README_INSTALLATIONS.md). That helper is an optional command-line tool, not required for normal use.

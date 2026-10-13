@@ -1,94 +1,57 @@
-# Architecture
+# How Dotfile Composer works
 
-## Product goal
+## What it is
 
-Create a browser-first, no-code dotfile manager that can help a user manage dotfiles for their own account and across multiple GitHub organizations.
+Dotfile Composer is an early web-app prototype. It has a page for editing one text file and previewing its contents. If the GitHub App is configured, the page can send that file to the backend, which asks GitHub to create a branch and pull request in one repository.
 
-## Core principles
+## Why changes use pull requests
 
-- GUI-first experience for non-developer users
-- Safe-by-default GitHub actions: branch + commit + PR flow
-- Multi-org support through GitHub App installation tokens
-- Offline-friendly local preview capability
-- Open, exportable configuration and data layouts
+A pull request is a proposed change. It gives the repository owner a chance to review the file on GitHub before deciding whether to merge it. The app does not directly change the repository's main branch or merge the pull request.
 
-## System components
+## Intended request flow
 
-### 1. Frontend
+1. The user edits the destination details and dotfile content in the browser.
+2. The browser checks that required fields are filled in and shows a live preview.
+3. When submitted, the browser sends the details to the backend service.
+4. The backend checks the required values and uses the server-side GitHub App credentials.
+5. The backend finds the GitHub App installation that can access the named repository.
+6. GitHub receives a request to create or use a branch, write the file, and open a pull request.
+7. The browser displays the pull request link or an error message.
 
-A Next.js app provides:
+This end-to-end flow is not currently ready to use. The frontend imports a global stylesheet that is missing from the checked-in app folder, and the backend does not yet allow the browser's cross-origin request. The page may fail to start, and submitting from it may be blocked even after the page can start.
 
-- a snippet library and profile templates
-- a dotfile preview pane
-- a target repo selection workflow
-- a form to submit changes for approval and PR creation
+## Main parts
 
-### 2. Backend API
+| Part | What it does |
+| --- | --- |
+| Frontend (`frontend/app/`) | Displays the editor, preview, destination fields, and result message. |
+| Backend (`backend/src/index.ts`) | Receives the browser request, checks required fields, and returns a result. |
+| GitHub integration (`backend/src/github.ts`) | Uses the GitHub App to find repository access and create the branch, file update, and pull request. |
+| GitHub App manifest (`infra/manifest.yml`) | Provides a starting point for registering a GitHub App. Its placeholder URLs and permissions must be reviewed before use. |
+| Local environment file (`.env`) | Holds the private GitHub App credentials on the developer's computer. It must not be shared or committed. |
 
-A Fastify server provides:
+There is also a cache helper in `backend/src/cache.ts` that supports Redis or in-memory storage. The current GitHub PR integration keeps its own in-memory caches; the helper is not connected to that workflow yet.
 
-- GitHub App auth setup
-- installation token fetching
-- repository data access
-- branch/file/PR creation endpoints
-- status and job reporting for each request
+## What is not part of the current prototype
 
-### 3. GitHub App
+The current app does not include:
 
-The GitHub App is the main integration point for:
+- the global stylesheet imported by the frontend page
+- browser permission to connect to the backend from the frontend's different local port
+- user sign-in or account management
+- a page that lists repositories or installations for selection
+- a library of profiles, templates, or visual building blocks
+- multi-repository or batch updates
+- a preview of the exact GitHub diff before submission
+- webhook processing, scheduled updates, or a job-history screen
+- a database for users, profiles, or audit records
 
-- user account installations
-- organization installations
-- per-installation scoping and permissions
-- branch/commit/PR creation across multiple repos
+These are possible future features, not available functions. See [PROPOSAL.md](./PROPOSAL.md) for product ideas.
 
-### 4. Data model
+## Security and access
 
-At the MVP level, the data layer can remain simple:
-
-- user profile
-- installation metadata
-- templates and snippets
-- job history
-- target repo mapping
-
-## Recommended permissions
-
-At minimum, use:
-
-- Repository contents: read and write
-- Pull requests: read and write
-- Metadata: read
-
-If you later need workflow automation, add workflow permissions carefully.
-
-## Deployment model
-
-- Frontend: Vercel or a similar hosting platform
-- Backend: Render, Fly.io, Cloud Run, or a lightweight VM
-- Database: Postgres for jobs/audit history
-- Secrets: environment variables + GitHub App private key stored in a secure secret manager
-
-## Security notes
-
-- never store GitHub App secrets in the frontend
-- validate webhook signatures if adding webhooks later
-- prefer PR creation over direct pushes for initial releases
-- log all changes with repo, branch, and timestamp metadata
-
-## MVP user flow
-
-1. User logs in or installs the GitHub App.
-2. User chooses or creates a dotfile profile.
-3. User selects an organization or repo target.
-4. User previews the generated content.
-5. User submits a change.
-6. The app creates a branch, writes the file, and opens a pull request.
-
-## Future roadmap
-
-- dry-run diff previews
-- batch repo selection and apply-all workflows
-- scheduled sync rules
-- rollback and audit history
-- repo template marketplace
+- Keep `GITHUB_APP_PRIVATE_KEY` on the backend only. Never put it in browser code or a `NEXT_PUBLIC_...` setting.
+- Install the GitHub App only on the account or organization and repositories that should be in scope.
+- Start with a test repository and inspect the pull request before merging.
+- The sample manifest includes permissions beyond what the current PR flow needs. Review and reduce the permissions before using it.
+- Webhook and OAuth URLs in the sample manifest are placeholders; the prototype does not provide those services.
