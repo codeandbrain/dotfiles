@@ -1,45 +1,89 @@
-# dotfile — GUI-first dotfile manager
+# dotfile
 
-A browser-based, no-code GUI for composing, previewing, and applying dotfiles across a user's account and multiple organizations' repositories.
+A browser-first, no-code GUI for composing, previewing, and applying dotfiles to a user's account and multiple GitHub organization repositories.
 
-What
-- A visual dotfile composer: drag-and-drop snippets and templates (zshrc, gitconfig, VS Code settings, etc.).
-- Preview and diff, then apply changes as branches + PRs to one or many repos.
+## What this repo contains
 
-Why
-- Makes dotfile management accessible to non-developers and program teams.
-- Safe-by-default: create pull requests rather than direct commits; provide dry-run and per-repo previews.
-- Supports multi-organization workflows via a GitHub App installation.
+This repository is set up as a TypeScript MVP scaffold for:
 
-When (MVP criteria)
-- Visual composer with snippet library and preview
-- Repo selection and dry-run
-- Create branch, commit, and open PR per target repo
-- Audit log and job history
+- a Next.js frontend for a visual dotfile composer
+- a Fastify backend for GitHub App authentication and GitHub API calls
+- a sample workflow to create a branch, update a file, and open a pull request in a target repository
 
-How (quick orientation)
-1. GUI-first: primary interaction will be the web app (no CLI required).
-2. GitHub integration: use a GitHub App (recommended) to operate across organizations. Personal repo support can use the App or user OAuth for their account.
-3. Local dev (CLI fallback — copy-paste commands):
-   - Working directory: ~/projects/dotfile
-   - Commands (run one at a time):
-     1) cd ~/projects && git clone https://github.com/codeandbrain/dotfile.git
-     2) cd ~/projects/dotfile
-     3) # install node deps (Node 18+ required)
-     4) npm install
-     5) npm run dev --workspace frontend
+## Quick start
 
-Repository layout (recommended)
-- frontend/    — SvelteKit or Next.js app (visual composer, preview)
-- backend/     — Node + Fastify (GitHub App auth, job runner API)
-- templates/   — snippet & profile templates (JSON)
-- docs/        — architecture and runbooks
-- .github/     — CI workflows and GitHub App manifest (infra/manifest.yaml)
+### 1) Install dependencies
 
-Next actions I can take (pick one):
-A. Create README + ARCHITECTURE.md and scaffold directories (I already created README and architecture doc).  
-B. Generate scaffolding code: frontend (SvelteKit) + backend (TypeScript, Fastify) and sample PR endpoint.  
-C. Draft a GitHub App manifest and installation instructions.  
-D. Create prioritized issue list + milestones in this repo.
+```bash
+npm install
+```
 
-Which option do you want me to do now? If B, tell me TypeScript or JavaScript; I'll scaffold files and push them into the repo.
+### 2) Run the frontend
+
+```bash
+npm run dev
+```
+
+Open http://localhost:3000
+
+### 3) Run the backend
+
+```bash
+npm run dev:backend
+```
+
+The backend listens on http://localhost:4000
+
+## Environment setup
+
+Copy the sample environment file and fill in the values:
+
+```bash
+cp .env.example .env
+```
+
+Then set the values for the GitHub App fields before using real GitHub API calls.
+
+## Repository structure
+
+```text
+.
+├── backend/
+│   ├── src/
+│   ├── package.json
+│   └── tsconfig.json
+├── docs/
+│   └── ARCHITECTURE.md
+├── frontend/
+│   ├── app/
+│   ├── package.json
+│   ├── tsconfig.json
+│   └── next.config.js
+├── .env.example
+├── .gitignore
+├── package.json
+└── README.md
+```
+
+## Default workflow
+
+1. Open the frontend composer.
+2. Write or choose a dotfile profile.
+3. Select the target owner/repo.
+4. Submit the request.
+5. The backend creates a branch, writes the file, and opens a pull request.
+
+## Notes
+
+This is a scaffold and prototype. It intentionally favors a safe-by-default model:
+
+- create PRs instead of direct pushes
+- preview before apply
+- support multi-organization workflows via GitHub App installations
+
+## Next steps
+
+- add real repo selection UI for user + org installations
+- add dry-run diff previews
+- add multi-repo batch targeting
+- add audit logs and templates
