@@ -1,0 +1,34 @@
+name: dotfile-gui
+url: https://example.com
+
+# Webhook endpoint the app will call (must be reachable during installation/testing)
+hook_attributes:
+  url: https://example.com/webhook
+
+# OAuth callback (used if you implement OAuth user flows)
+redirect_url: https://example.com/auth/callback
+
+description: "GUI-first dotfile manager: create PRs across user and org repositories"
+
+# Permissions (request least privilege; adjust later as needed)
+permissions:
+  contents: write
+  pull_requests: write
+  metadata: read
+  checks: read
+  issues: read
+  workflows: write
+
+# Organization-level permissions
+# (use only if needed; keep minimal)
+organization_administration: read
+
+# Subscribe to the minimum set of webhook events you need
+# Installation event is required to learn when the app is installed/uninstalled
+events:
+  - installation
+  - push
+  - pull_request
+
+# Whether the app will be public in the marketplace. For early testing set to false.
+public: false
