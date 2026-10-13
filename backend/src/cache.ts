@@ -1,4 +1,4 @@
-import Redis from 'ioredis';
+import { Redis } from 'ioredis';
 
 // Cache adapter interface using Redis when REDIS_URL is set, otherwise in-memory maps.
 

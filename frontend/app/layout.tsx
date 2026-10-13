@@ -1,14 +1,10 @@
 import './globals.css';
 
 export const metadata = {
-  title: 'Dotfile Composer',
-  description: 'Visual dotfile composer for GitHub repositories',
+  title: 'Orbit — GitHub workspace manager',
+  description: 'A free, browser-based GitHub account and organization management workspace.',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-  return (
-    <html lang="en">
-      <body>{children}</body>
-    </html>
-  );
+  return <html lang="en"><body>{children}</body></html>;
 }

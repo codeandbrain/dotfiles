@@ -1,145 +1,33 @@
 'use client';
 
 import { useMemo, useState } from 'react';
+import { demoAccount, demoOrganizations, demoRepositories, loadGitHubData, type Account, type Organization, type Repository } from '../lib/github';
 
-const defaultProfile = `# .gitconfig
-[user]
-  name = Your Name
-  email = you@example.com
-
-[core]
-  editor = nano
-
-[alias]
-  co = checkout
-  br = branch
-  st = status
-`;
-
-function isBranchNameValid(value: string) {
-  return /^[A-Za-z0-9._/-]+$/.test(value) && !value.startsWith('/') && !value.startsWith('-');
-}
-
-function isFilePathValid(value: string) {
-  return /^[A-Za-z0-9._/\-]+$/.test(value.replace(/^\/+/, '')) && value.trim().length > 0;
-}
+type View = 'overview' | 'repositories' | 'organizations' | 'access' | 'activity' | 'settings';
+const navItems: { id: View; label: string; icon: string }[] = [
+  { id: 'overview', label: 'Overview', icon: '⌂' }, { id: 'repositories', label: 'Repositories', icon: '▣' }, { id: 'organizations', label: 'Organizations', icon: '◈' }, { id: 'access', label: 'Access & teams', icon: '♧' }, { id: 'activity', label: 'Activity log', icon: '◷' },
+];
+const activity = [
+  { title: 'Repository visibility reviewed', detail: 'community-health-dashboard', time: 'Today, 10:42 AM', tone: 'green' }, { title: 'Organization member invited', detail: 'health-data-lab · pending', time: 'Yesterday, 3:18 PM', tone: 'purple' }, { title: 'Branch protection updated', detail: 'field-survey-toolkit · main', time: 'Oct 09, 9:05 AM', tone: 'orange' }, { title: 'Personal access token created', detail: 'Local development · read-only', time: 'Oct 06, 5:27 PM', tone: 'blue' },
+];
+function formatDate(value: string) { return new Intl.DateTimeFormat('en', { month: 'short', day: 'numeric' }).format(new Date(value)); }
 
 export default function HomePage() {
-  const [owner, setOwner] = useState('codeandbrain');
-  const [repo, setRepo] = useState('dotfile');
-  const [filePath, setFilePath] = useState('.dotfile-demo/.gitconfig');
-  const [title, setTitle] = useState('Add dotfile composer demo');
-  const [branchName, setBranchName] = useState('dotfile-composer-demo');
-  const [content, setContent] = useState(defaultProfile);
-  const [status, setStatus] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
-
-  const isFormValid = useMemo(() => {
-    return Boolean(
-      owner.trim() &&
-      repo.trim() &&
-      branchName.trim() &&
-      isBranchNameValid(branchName.trim()) &&
-      filePath.trim() &&
-      isFilePathValid(filePath) &&
-      title.trim() &&
-      content.trim(),
-    );
-  }, [branchName, content, filePath, owner, repo, title]);
-
-  async function handleSubmit() {
-    if (!isFormValid) {
-      setStatus('Error: fill in all required fields and keep branch/file names valid.');
-      return;
-    }
-
-    setLoading(true);
-    setStatus(null);
-
-    try {
-      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:4000';
-
-      const response = await fetch(`${backendUrl}/api/create-pr`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          owner: owner.trim(),
-          repo: repo.trim(),
-          branchName: branchName.trim(),
-          filePath: filePath.trim(),
-          title: title.trim(),
-          body: 'Created by the dotfile composer demo UI',
-          fileContents: content,
-        }),
-      });
-
-      const payload = await response.json();
-
-      if (!response.ok) {
-        throw new Error(payload.message || 'Request failed');
-      }
-
-      setStatus(`PR created: ${payload.pullRequest.html_url}`);
-    } catch (error) {
-      const message = error instanceof Error ? error.message : 'Unknown error';
-      setStatus(`Error: ${message}`);
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  return (
-    <main className="page-shell">
-      <section className="panel">
-        <div className="header-row">
-          <div>
-            <p className="eyebrow">Dotfile Composer</p>
-            <h1>Visual dotfile profile</h1>
-          </div>
-          <button className="primary" onClick={handleSubmit} disabled={loading || !isFormValid}>
-            {loading ? 'Creating PR...' : 'Apply to GitHub'}
-          </button>
-        </div>
-
-        <div className="form-grid">
-          <label>
-            Owner
-            <input value={owner} onChange={(event) => setOwner(event.target.value)} />
-          </label>
-          <label>
-            Repository
-            <input value={repo} onChange={(event) => setRepo(event.target.value)} />
-          </label>
-          <label>
-            Branch name
-            <input value={branchName} onChange={(event) => setBranchName(event.target.value)} />
-          </label>
-          <label>
-            File path
-            <input value={filePath} onChange={(event) => setFilePath(event.target.value)} />
-          </label>
-          <label className="full-width">
-            PR title
-            <input value={title} onChange={(event) => setTitle(event.target.value)} />
-          </label>
-        </div>
-
-        <div className="editor-grid">
-          <div className="editor-wrap">
-            <h2>Dotfile content</h2>
-            <textarea value={content} onChange={(event) => setContent(event.target.value)} />
-          </div>
-
-          <div className="preview-wrap">
-            <h2>Preview</h2>
-            <pre>{content}</pre>
-          </div>
-        </div>
-
-        {status ? <div className="status-box">{status}</div> : null}
-      </section>
-    </main>
-  );
+  const [view, setView] = useState<View>('overview');
+  const [account, setAccount] = useState<Account>(demoAccount); const [repositories, setRepositories] = useState<Repository[]>(demoRepositories); const [organizations, setOrganizations] = useState<Organization[]>(demoOrganizations);
+  const [token, setToken] = useState(''); const [showToken, setShowToken] = useState(false); const [connected, setConnected] = useState(false); const [loading, setLoading] = useState(false); const [notice, setNotice] = useState('Demo mode is active. Connect a GitHub token to load your live workspace.'); const [query, setQuery] = useState(''); const [repoFilter, setRepoFilter] = useState<'all' | 'public' | 'private'>('all');
+  const filteredRepos = useMemo(() => repositories.filter((repo) => { const matchesQuery = `${repo.name} ${repo.language ?? ''}`.toLowerCase().includes(query.toLowerCase()); const matchesFilter = repoFilter === 'all' || (repoFilter === 'private' ? repo.private : !repo.private); return matchesQuery && matchesFilter; }), [repositories, query, repoFilter]);
+  async function connectGitHub() { if (!token.trim()) { setNotice('Paste a GitHub token first, or keep using the free demo mode.'); return; } setLoading(true); setNotice('Connecting securely in your browser…'); try { const data = await loadGitHubData(token.trim()); setAccount(data.account); setRepositories(data.repositories); setOrganizations(data.organizations); setConnected(true); setNotice('Connected. Your live GitHub workspace is now loaded in this browser session.'); } catch (error) { setNotice(error instanceof Error ? `${error.message}. Check the token and try again.` : 'Could not connect to GitHub.'); } finally { setLoading(false); } }
+  function useDemoMode() { setAccount(demoAccount); setRepositories(demoRepositories); setOrganizations(demoOrganizations); setConnected(false); setToken(''); setNotice('Demo mode restored. No GitHub credentials are used.'); }
+  return <main className="app-shell"><aside className="sidebar"><div className="brand"><span className="brand-mark">⌁</span><span>orbit<span className="brand-dot">.</span></span></div><div className="workspace-switcher"><span className="avatar small">{account.login.slice(0, 2).toUpperCase()}</span><span><b>{account.login}</b><small>{connected ? 'Live workspace' : 'Demo workspace'}</small></span><span className="chevron">⌄</span></div><nav className="nav-list" aria-label="Primary navigation"><span className="nav-label">WORKSPACE</span>{navItems.map((item) => <button key={item.id} className={`nav-item ${view === item.id ? 'active' : ''}`} onClick={() => setView(item.id)}><span className="nav-icon">{item.icon}</span>{item.label}{item.id === 'activity' && <span className="nav-count">4</span>}</button>)}<span className="nav-label second">MANAGE</span><button className={`nav-item ${view === 'settings' ? 'active' : ''}`} onClick={() => setView('settings')}><span className="nav-icon">⚙</span>Settings</button></nav><div className="sidebar-footer"><div className="help-card"><span className="help-icon">?</span><div><b>Need a hand?</b><small>Read the quick start guide</small></div><span>→</span></div><div className="free-note"><span className="status-dot" />Free & local-first</div></div></aside><section className="main-content"><header className="topbar"><div className="breadcrumbs"><span>Workspace</span><span>/</span><b>{navItems.find((item) => item.id === view)?.label ?? 'Settings'}</b></div><div className="top-actions"><button className="icon-button" title="Notifications">♧<span className="notification-dot" /></button><div className="profile"><span className="avatar">{account.login.slice(0, 2).toUpperCase()}</span><span className="profile-copy"><b>{account.name || account.login}</b><small>@{account.login}</small></span><span className="chevron">⌄</span></div></div></header><div className="content-wrap"><div className="page-heading"><div><p className="eyebrow">{connected ? 'LIVE GITHUB WORKSPACE' : 'FREE DEMO WORKSPACE'}</p><h1>{view === 'overview' ? 'Good morning, Ariful' : navItems.find((item) => item.id === view)?.label || 'Settings'}</h1><p className="subheading">{view === 'overview' ? 'Here is what is happening across your GitHub account.' : 'Keep your GitHub workspace organized and easy to operate.'}</p></div><button className="primary-button" onClick={() => setView('settings')}><span>＋</span> Connect GitHub</button></div>{view === 'overview' && <Overview account={account} repositories={repositories} organizations={organizations} onView={setView} />}{view === 'repositories' && <Repositories repositories={filteredRepos} query={query} setQuery={setQuery} repoFilter={repoFilter} setRepoFilter={setRepoFilter} />}{view === 'organizations' && <Organizations organizations={organizations} />}{view === 'access' && <AccessView organizations={organizations} />}{view === 'activity' && <ActivityView />}{view === 'settings' && <Settings token={token} setToken={setToken} showToken={showToken} setShowToken={setShowToken} loading={loading} connectGitHub={connectGitHub} useDemoMode={useDemoMode} notice={notice} />}</div></section></main>;
 }
+function Overview({ account, repositories, organizations, onView }: { account: Account; repositories: Repository[]; organizations: Organization[]; onView: (view: View) => void }) { const privateCount = repositories.filter((repo) => repo.private).length; return <><div className="stat-grid"><StatCard label="Total repositories" value={repositories.length} detail={`${privateCount} private · ${repositories.length - privateCount} public`} icon="▣" tone="purple" /><StatCard label="Organizations" value={organizations.length} detail="Across your workspace" icon="◈" tone="orange" /><StatCard label="Followers" value={account.followers} detail={`Following ${account.following}`} icon="◉" tone="blue" /><StatCard label="Open actions" value="04" detail="2 need your attention" icon="✓" tone="green" /></div><div className="section-grid"><section className="card repo-card"><CardHeading title="Recently updated" subtitle="Your repositories with the latest activity"><button className="text-button" onClick={() => onView('repositories')}>View all <span>→</span></button></CardHeading><div className="repo-list">{repositories.slice(0, 4).map((repo) => <RepoRow key={repo.id} repo={repo} />)}</div></section><section className="card activity-card"><CardHeading title="Recent activity" subtitle="Latest changes in your workspace"><button className="text-button" onClick={() => onView('activity')}>See log <span>→</span></button></CardHeading><div className="activity-list">{activity.slice(0, 3).map((item) => <ActivityRow key={item.title} item={item} />)}</div></section></div><div className="section-grid lower"><section className="card health-card"><CardHeading title="Workspace health" subtitle="A quick look at your account hygiene"><span className="health-score">82 / 100</span></CardHeading><div className="progress"><span style={{ width: '82%' }} /></div><div className="health-items"><span><i className="check">✓</i> MFA enabled</span><span><i className="check">✓</i> 2FA recovery saved</span><span><i className="warning">!</i> 2 stale tokens</span></div></section><section className="card org-card"><CardHeading title="Your organizations" subtitle="Teams and shared workspaces"><button className="text-button" onClick={() => onView('organizations')}>Manage <span>→</span></button></CardHeading><div className="org-list">{organizations.map((org) => <div className="org-row" key={org.id}><img src={org.avatar_url} alt="" /><span><b>{org.login}</b><small>{org.description}</small></span><span className="org-arrow">→</span></div>)}</div></section></div></>; }
+function CardHeading({ title, subtitle, children }: { title: string; subtitle: string; children?: React.ReactNode }) { return <div className="card-heading"><div><h2>{title}</h2><p>{subtitle}</p></div>{children}</div>; }
+function StatCard({ label, value, detail, icon, tone }: { label: string; value: string | number; detail: string; icon: string; tone: string }) { return <div className="stat-card"><div className={`stat-icon ${tone}`}>{icon}</div><div><p>{label}</p><strong>{value}</strong><small>{detail}</small></div><span className="trend">↗</span></div>; }
+function RepoRow({ repo }: { repo: Repository }) { return <div className="repo-row"><div className="repo-symbol">{repo.private ? '▣' : '◇'}</div><div className="repo-main"><b>{repo.name}</b><span>{repo.language || 'No language'} · Updated {formatDate(repo.updated_at)}</span></div><span className={`visibility ${repo.private ? 'private' : ''}`}>{repo.private ? 'Private' : 'Public'}</span><span className="repo-metric">★ {repo.stargazers_count}</span><span className="row-arrow">→</span></div>; }
+function ActivityRow({ item }: { item: typeof activity[number] }) { return <div className="activity-row"><span className={`activity-dot ${item.tone}`} /><div><b>{item.title}</b><span>{item.detail}</span></div><time>{item.time}</time></div>; }
+function Repositories({ repositories, query, setQuery, repoFilter, setRepoFilter }: { repositories: Repository[]; query: string; setQuery: (v: string) => void; repoFilter: 'all' | 'public' | 'private'; setRepoFilter: (v: 'all' | 'public' | 'private') => void }) { return <section className="card full-card"><div className="toolbar"><div className="search-box"><span>⌕</span><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search repositories" /></div><div className="filter-tabs">{(['all', 'public', 'private'] as const).map((filter) => <button className={repoFilter === filter ? 'selected' : ''} key={filter} onClick={() => setRepoFilter(filter)}>{filter[0].toUpperCase() + filter.slice(1)}</button>)}</div><button className="outline-button">＋ New repository</button></div><div className="table-head"><span>Repository</span><span>Visibility</span><span>Stars</span><span>Updated</span><span /></div>{repositories.map((repo) => <div className="repo-table-row" key={repo.id}><div className="repo-main"><b>{repo.name}</b><span>{repo.full_name} · {repo.language || 'No language'}</span></div><span className={`visibility ${repo.private ? 'private' : ''}`}>{repo.private ? 'Private' : 'Public'}</span><span>★ {repo.stargazers_count}</span><span>{formatDate(repo.updated_at)}</span><button className="kebab">•••</button></div>)}{repositories.length === 0 && <div className="empty-state">No repositories match your search.</div>}</section>; }
+function Organizations({ organizations }: { organizations: Organization[] }) { return <div className="org-grid">{organizations.map((org) => <section className="card org-large" key={org.id}><div className="org-large-head"><img src={org.avatar_url} alt="" /><div><h2>{org.login}</h2><p>{org.description}</p></div><button className="kebab">•••</button></div><div className="org-stats"><span><b>12</b> members</span><span><b>8</b> repositories</span><span><b>3</b> teams</span></div><button className="outline-button full">Open organization <span>→</span></button></section>)}<section className="card add-card"><span>＋</span><h2>Add organization</h2><p>Connect another GitHub organization to manage it here.</p><button className="text-button">Get started <span>→</span></button></section></div>; }
+function AccessView({ organizations }: { organizations: Organization[] }) { return <section className="card full-card"><CardHeading title="Access & teams" subtitle="Review organization access without leaving your workspace."><button className="outline-button">＋ Invite member</button></CardHeading><div className="access-list">{organizations.flatMap((org) => [{ name: 'Sadia Rahman', handle: '@sadiarahman', role: 'Admin', org: org.login }, { name: 'Nabil Hasan', handle: '@nabilhasan', role: 'Member', org: org.login }]).map((member) => <div className="access-row" key={member.name + member.org}><span className="avatar">{member.name.split(' ').map((n) => n[0]).join('')}</span><div><b>{member.name}</b><span>{member.handle}</span></div><span className="access-org">{member.org}</span><span className="role-pill">{member.role}</span><button className="kebab">•••</button></div>)}</div></section>; }
+function ActivityView() { return <section className="card full-card"><CardHeading title="Activity log" subtitle="A transparent record of workspace changes."><button className="outline-button">Export CSV</button></CardHeading><div className="activity-list large">{activity.map((item) => <ActivityRow key={item.title} item={item} />)}</div></section>; }
+function Settings({ token, setToken, showToken, setShowToken, loading, connectGitHub, useDemoMode, notice }: { token: string; setToken: (v: string) => void; showToken: boolean; setShowToken: (v: boolean) => void; loading: boolean; connectGitHub: () => void; useDemoMode: () => void; notice: string }) { return <div className="settings-grid"><section className="card settings-card"><CardHeading title="GitHub connection" subtitle="Use a fine-grained token to load live data. It stays in this browser tab only."><span className="connection-badge">Free</span></CardHeading><label className="field-label">Fine-grained personal access token<div className="token-input"><input type={showToken ? 'text' : 'password'} value={token} onChange={(event) => setToken(event.target.value)} placeholder="github_pat_••••••••••••" /><button onClick={() => setShowToken(!showToken)}>{showToken ? 'Hide' : 'Show'}</button></div></label><p className="field-help">Recommended permissions: read-only access to metadata, repositories, and organizations. Never paste a classic token with more access than needed.</p><div className="settings-actions"><button className="primary-button" onClick={connectGitHub} disabled={loading}>{loading ? 'Connecting…' : 'Connect securely'}</button><button className="outline-button" onClick={useDemoMode}>Use demo mode</button></div><div className="notice"><span>i</span>{notice}</div></section><section className="card settings-card"><CardHeading title="Workspace preferences" subtitle="Small details that keep the dashboard comfortable." /><div className="preference-row"><span><b>Compact repository rows</b><small>Show more repositories at once</small></span><button className="toggle on"><i /></button></div><div className="preference-row"><span><b>Activity notifications</b><small>Keep important actions visible</small></span><button className="toggle on"><i /></button></div><div className="preference-row"><span><b>Reduce motion</b><small>Use fewer transition effects</small></span><button className="toggle"><i /></button></div></section></div>; }

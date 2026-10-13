@@ -66,7 +66,7 @@ export async function getInstallationIdForRepo(owner: string, repo: string): Pro
   try {
     const install = await appOctokit.rest.apps.getRepoInstallation({ owner, repo });
     // cache owner -> installation
-    if (install && install.data && install.data.account && install.data.id) {
+    if (install && install.data && install.data.account && install.data.id && 'login' in install.data.account) {
       ownerInstallationCache.set(install.data.account.login.toLowerCase(), install.data.id);
     }
     return install.data.id;
