@@ -10,6 +10,34 @@ function nowSec() {
   return Math.floor(Date.now() / 1000);
 }
 
+export function normalizeBranchName(value: string) {
+  const trimmed = value.trim();
+  if (!trimmed) {
+    throw new Error('Branch name is required');
+  }
+
+  const normalized = trimmed.replace(/\s+/g, '-');
+  if (!/^[A-Za-z0-9._/-]+$/.test(normalized) || normalized.startsWith('/') || normalized.startsWith('-')) {
+    throw new Error('Branch name must contain only letters, numbers, ., _, /, and -, and cannot start with a slash or dash.');
+  }
+
+  return normalized;
+}
+
+export function normalizeFilePath(value: string) {
+  const trimmed = value.trim();
+  if (!trimmed) {
+    throw new Error('File path is required');
+  }
+
+  const normalized = trimmed.replace(/^\/+/, '');
+  if (!/^[A-Za-z0-9._/\-]+$/.test(normalized)) {
+    throw new Error('File path must contain only letters, numbers, ., _, /, and -');
+  }
+
+  return normalized;
+}
+
 async function getAppOctokit() {
   const appId = Number(process.env.GITHUB_APP_ID);
   const privateKey = (process.env.GITHUB_APP_PRIVATE_KEY || '').replace(/\\n/g, '\n');
@@ -151,25 +179,50 @@ export async function createDotfilePullRequest({
   body: string;
   fileContents: string;
 }) {
-  const octokit = await getOctokitForTarget({ owner, repo });
+  const sanitizedOwner = owner.trim();
+  const sanitizedRepo = repo.trim();
+  const sanitizedBranchName = normalizeBranchName(branchName);
+  const sanitizedFilePath = normalizeFilePath(filePath);
+  const sanitizedTitle = title.trim();
+  const sanitizedContents = fileContents.trim();
 
-  const repository = await octokit.rest.repos.get({ owner, repo });
+  if (!sanitizedOwner || !sanitizedRepo || !sanitizedTitle || !sanitizedContents) {
+    throw new Error('owner, repo, title, and fileContents are required');
+  }
+
+  const octokit = await getOctokitForTarget({ owner: sanitizedOwner, repo: sanitizedRepo });
+
+  const repository = await octokit.rest.repos.get({ owner: sanitizedOwner, repo: sanitizedRepo });
   const baseBranch = repository.data.default_branch;
 
-  const baseBranchData = await octokit.rest.repos.getBranch({ owner, repo, branch: baseBranch });
+  const baseBranchData = await octokit.rest.repos.getBranch({ owner: sanitizedOwner, repo: sanitizedRepo, branch: baseBranch });
   const sha = baseBranchData.data.commit.sha;
 
   try {
-    await octokit.rest.git.getRef({ owner, repo, ref: `heads/${branchName}` });
+    await octokit.rest.git.getRef({ owner: sanitizedOwner, repo: sanitizedRepo, ref: `heads/${sanitizedBranchName}` });
   } catch {
-    await octokit.rest.git.createRef({ owner, repo, ref: `refs/heads/${branchName}`, sha });
+    await octokit.rest.git.createRef({ owner: sanitizedOwner, repo: sanitizedRepo, ref: `refs/heads/${sanitizedBranchName}`, sha });
   }
 
-  const content = Buffer.from(fileContents, 'utf8').toString('base64');
+  const content = Buffer.from(sanitizedContents, 'utf8').toString('base64');
 
-  await octokit.rest.repos.createOrUpdateFileContents({ owner, repo, path: filePath, message: title, content, branch: branchName });
+  await octokit.rest.repos.createOrUpdateFileContents({
+    owner: sanitizedOwner,
+    repo: sanitizedRepo,
+    path: sanitizedFilePath,
+    message: sanitizedTitle,
+    content,
+    branch: sanitizedBranchName,
+  });
 
-  const pullRequest = await octokit.rest.pulls.create({ owner, repo, title, head: branchName, base: baseBranch, body });
+  const pullRequest = await octokit.rest.pulls.create({
+    owner: sanitizedOwner,
+    repo: sanitizedRepo,
+    title: sanitizedTitle,
+    head: sanitizedBranchName,
+    base: baseBranch,
+    body,
+  });
 
   return pullRequest.data;
 }

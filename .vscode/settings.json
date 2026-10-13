@@ -1,0 +1,9 @@
+{
+    "editor.formatOnSave": true,
+    "git.addAICoAuthor": "all",
+    "git.alwaysShowStagedChangesResourceGroup": true,
+    "git.autoStash": true,
+    "git.branchProtectionPrompt": "alwaysCommit",
+    "git.rebaseWhenSync": true,
+    "git.pullBeforeCheckout": true
+}

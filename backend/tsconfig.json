@@ -1,21 +1,23 @@
 {
-  "name": "dotfile-backend",
-  "private": true,
-  "type": "module",
-  "scripts": {
-    "dev": "tsx watch src/index.ts",
-    "build": "tsc -p tsconfig.json",
-    "start": "node dist/index.js"
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "lib": [
+      "ES2022"
+    ],
+    "strict": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "types": [
+      "node"
+    ],
+    "outDir": "dist",
+    "rootDir": "src"
   },
-  "dependencies": {
-    "@octokit/auth-app": "^7.1.1",
-    "@octokit/rest": "^21.0.0",
-    "dotenv": "^16.4.5",
-    "fastify": "^4.29.0"
-  },
-  "devDependencies": {
-    "@types/node": "^20.14.12",
-    "tsx": "^4.17.0",
-    "typescript": "^5.5.4"
-  }
+  "include": [
+    "src/**/*.ts"
+  ]
 }

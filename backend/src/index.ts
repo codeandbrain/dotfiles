@@ -10,25 +10,16 @@ app.get('/health', async () => ({ ok: true, service: 'dotfile-backend' }));
 
 app.post('/api/create-pr', async (request, reply) => {
   try {
-    const {
-      owner,
-      repo,
-      branchName,
-      filePath,
-      title,
-      body,
-      fileContents,
-    } = request.body as {
-      owner?: string;
-      repo?: string;
-      branchName?: string;
-      filePath?: string;
-      title?: string;
-      body?: string;
-      fileContents?: string;
-    };
+    const payload = request.body as Record<string, unknown>;
+    const owner = typeof payload.owner === 'string' ? payload.owner.trim() : '';
+    const repo = typeof payload.repo === 'string' ? payload.repo.trim() : '';
+    const branchName = typeof payload.branchName === 'string' ? payload.branchName.trim() : '';
+    const filePath = typeof payload.filePath === 'string' ? payload.filePath.trim() : '';
+    const title = typeof payload.title === 'string' ? payload.title.trim() : '';
+    const body = typeof payload.body === 'string' ? payload.body.trim() : 'Created by the dotfile composer';
+    const fileContents = typeof payload.fileContents === 'string' ? payload.fileContents : '';
 
-    if (!owner || !repo || !branchName || !filePath || !title || !fileContents) {
+    if (!owner || !repo || !branchName || !filePath || !title || !fileContents.trim()) {
       return reply.code(400).send({
         message: 'owner, repo, branchName, filePath, title, and fileContents are required',
       });
@@ -40,7 +31,7 @@ app.post('/api/create-pr', async (request, reply) => {
       branchName,
       filePath,
       title,
-      body: body || 'Created by the dotfile composer',
+      body,
       fileContents,
     });
 
@@ -51,7 +42,7 @@ app.post('/api/create-pr', async (request, reply) => {
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error';
     request.log.error({ error: message }, 'Failed to create pull request');
-    return reply.code(500).send({ message });
+    return reply.code(400).send({ message });
   }
 });
 

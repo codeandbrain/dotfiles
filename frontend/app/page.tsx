@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 
 const defaultProfile = `# .gitconfig
 [user]
@@ -16,6 +16,14 @@ const defaultProfile = `# .gitconfig
   st = status
 `;
 
+function isBranchNameValid(value: string) {
+  return /^[A-Za-z0-9._/-]+$/.test(value) && !value.startsWith('/') && !value.startsWith('-');
+}
+
+function isFilePathValid(value: string) {
+  return /^[A-Za-z0-9._/\-]+$/.test(value.replace(/^\/+/, '')) && value.trim().length > 0;
+}
+
 export default function HomePage() {
   const [owner, setOwner] = useState('codeandbrain');
   const [repo, setRepo] = useState('dotfile');
@@ -26,7 +34,25 @@ export default function HomePage() {
   const [status, setStatus] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
+  const isFormValid = useMemo(() => {
+    return Boolean(
+      owner.trim() &&
+      repo.trim() &&
+      branchName.trim() &&
+      isBranchNameValid(branchName.trim()) &&
+      filePath.trim() &&
+      isFilePathValid(filePath) &&
+      title.trim() &&
+      content.trim(),
+    );
+  }, [branchName, content, filePath, owner, repo, title]);
+
   async function handleSubmit() {
+    if (!isFormValid) {
+      setStatus('Error: fill in all required fields and keep branch/file names valid.');
+      return;
+    }
+
     setLoading(true);
     setStatus(null);
 
@@ -39,11 +65,11 @@ export default function HomePage() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          owner,
-          repo,
-          branchName,
-          filePath,
-          title,
+          owner: owner.trim(),
+          repo: repo.trim(),
+          branchName: branchName.trim(),
+          filePath: filePath.trim(),
+          title: title.trim(),
           body: 'Created by the dotfile composer demo UI',
           fileContents: content,
         }),
@@ -72,7 +98,7 @@ export default function HomePage() {
             <p className="eyebrow">Dotfile Composer</p>
             <h1>Visual dotfile profile</h1>
           </div>
-          <button className="primary" onClick={handleSubmit} disabled={loading}>
+          <button className="primary" onClick={handleSubmit} disabled={loading || !isFormValid}>
             {loading ? 'Creating PR...' : 'Apply to GitHub'}
           </button>
         </div>
