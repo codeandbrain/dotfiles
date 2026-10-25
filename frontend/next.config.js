@@ -1,11 +1,15 @@
-const isGitHubActions = process.env.GITHUB_ACTIONS === 'true';
+const repoName = 'dotfiles';
+const isProduction = process.env.NODE_ENV === 'production';
 
 const nextConfig = {
   reactStrictMode: true,
   output: 'export',
   trailingSlash: true,
-  basePath: isGitHubActions ? '/dotfile' : '',
-  assetPrefix: isGitHubActions ? '/dotfile/' : undefined,
+  basePath: isProduction ? `/${repoName}` : '',
+  assetPrefix: isProduction ? `/${repoName}/` : '',
+  images: {
+    unoptimized: true,
+  },
 };
 
 module.exports = nextConfig;
