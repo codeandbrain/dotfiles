@@ -2,7 +2,7 @@
 
 ## Orbit GitHub workspace manager
 
-The browser app now opens as **Orbit**, a free-first GitHub account and organization workspace manager. It works immediately in demo mode without an account, paid service, database, or API key.
+The browser app now opens as **Orbit**, a hosted GitHub account and organization workspace manager. It works immediately in demo mode without an account, and production mode uses server-side GitHub OAuth.
 
 ### Included screens
 
@@ -10,30 +10,37 @@ The browser app now opens as **Orbit**, a free-first GitHub account and organiza
 - Searchable repositories view with public/private filters
 - Organization cards and access/team review
 - Activity log and CSV-export placeholder
-- Settings view with browser-only fine-grained GitHub token connection
+- Settings view with hosted GitHub OAuth sign-in and secure session handling
 - Responsive layout for desktop, tablet, and mobile widths
 
-### Run it locally
+### Hosted use (recommended)
+
+Orbit is designed to run as a hosted Next.js app on Vercel. Users choose **Sign in with GitHub**, and Orbit loads their personal repositories and authorized organizations through server-side GitHub OAuth. No personal access token is pasted into the browser, and repository write actions are sent through authenticated server routes.
+
+Create a GitHub OAuth App with callback URL `https://YOUR-VERCEL-DOMAIN/api/auth/callback`. Add `GITHUB_OAUTH_CLIENT_ID`, `GITHUB_OAUTH_CLIENT_SECRET`, `SESSION_SECRET`, and `NEXT_PUBLIC_APP_URL` to the Vercel project environment. If an organization requires OAuth approval, an organization owner must approve the app before private organization data can be listed.
+
+Configure the Vercel project with `frontend` as its Root Directory, `npm run build` as its build command, and `npm install` as its install command. The frontend workspace contains both the dashboard and the server-side API routes.
+
+### Run the demo locally
 
 ```bash
 npm install
 npm run dev
 ```
 
-Open <http://localhost:3000>. Use **Settings → Connect GitHub** to load live data. The token is sent directly from the browser to GitHub and is not stored by the backend. For the safest setup, create a fine-grained token with only read access to repository metadata, repositories, and organizations. Selecting **Use demo mode** clears the token field and returns to local sample data.
+Open <http://localhost:3000>. Demo mode works without credentials. To test OAuth locally, copy `frontend/.env.example` to `frontend/.env.local`, set the values, and register `http://localhost:3000/api/auth/callback` as the OAuth callback URL. Selecting **Use demo mode** returns to local sample data.
 
 The original prototype files remain available as `frontend/app/page.legacy.tsx`, `frontend/app/globals.legacy.css`, and `frontend/app/layout.legacy.tsx`.
 
 
 ## CI/CD and publishing
 
-GitHub Actions now provides:
+GitHub Actions provides:
 
-- `.github/workflows/ci.yml`: lint, TypeScript checks, critical-only audit gate, and production build on pull requests and pushes to `main`.
-- `.github/workflows/deploy-pages.yml`: free static deployment of the browser app to GitHub Pages after a `main` push.
+- `.github/workflows/ci.yml`: lint, TypeScript checks, moderate-severity audit gate, and production build on pull requests and pushes to `main`.
 - `.github/dependabot.yml`: weekly npm updates and monthly GitHub Actions updates.
 
-Enable **Settings → Pages → Source: GitHub Actions** once in the repository settings. After the first successful `main` deployment, GitHub will show the live Pages URL in the workflow environment.
+Production hosting is Vercel because OAuth and repository operations require server-side route handlers. GitHub Pages is not used for the production app.
 
 ## Repository operations
 
