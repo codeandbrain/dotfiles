@@ -1,14 +1,22 @@
 const repoName = 'dotfiles';
-const isProduction = process.env.NODE_ENV === 'production';
+const isGitHubPages = process.env.GITHUB_PAGES === 'true';
 
 const nextConfig = {
   reactStrictMode: true,
-  output: 'export',
-  trailingSlash: true,
-  basePath: isProduction ? `/${repoName}` : '',
-  assetPrefix: isProduction ? `/${repoName}/` : '',
+  ...(isGitHubPages
+    ? {
+        output: 'export',
+        trailingSlash: true,
+        basePath: `/${repoName}`,
+        assetPrefix: `/${repoName}/`,
+      }
+    : {}),
   images: {
     unoptimized: true,
+    remotePatterns: [
+      { protocol: 'https', hostname: 'github.com' },
+      { protocol: 'https', hostname: 'avatars.githubusercontent.com' },
+    ],
   },
 };
 

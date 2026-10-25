@@ -50,21 +50,3 @@ export const demoOrganizations: Organization[] = [
   { id: 11, login: 'health-data-lab', description: 'Open tools for better public health decisions.', avatar_url: 'https://github.com/github.png' },
   { id: 12, login: 'community-programs', description: 'Shared operations and learning resources.', avatar_url: 'https://github.com/github.png' },
 ];
-
-async function get<T>(path: string, token?: string): Promise<T> {
-  const response = await fetch(`https://api.github.com${path}`, {
-    headers: { Accept: 'application/vnd.github+json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
-  });
-  if (!response.ok) throw new Error(`GitHub returned ${response.status}`);
-  return response.json();
-}
-
-export async function loadGitHubData(token?: string) {
-  if (!token) return { account: demoAccount, repositories: demoRepositories, organizations: demoOrganizations, demo: true };
-  const account = await get<Account>('/user', token);
-  const [repositories, organizations] = await Promise.all([
-    get<Repository[]>('/user/repos?per_page=100&sort=updated', token),
-    get<Organization[]>('/user/orgs?per_page=100', token),
-  ]);
-  return { account, repositories, organizations, demo: false };
-}
