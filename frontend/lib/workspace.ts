@@ -43,3 +43,10 @@ export function repositoriesToCsv(repositories: Repository[]) {
   const rows = repositories.map((repo) => [repo.name, repositoryOrganization(repo), repo.private ? 'private' : 'public', repo.language ?? '', String(repo.stargazers_count), repo.updated_at]);
   return [header, ...rows].map((row) => row.map((value) => `"${value.replaceAll('"', '""')}"`).join(',')).join('\n');
 }
+
+export function activitiesToCsv(activities: Array<{ title: string; detail: string; time: string }>) {
+  const rows = activities.map((item) => [item.title, item.detail, item.time]);
+  return [['activity', 'detail', 'time'], ...rows]
+    .map((row) => row.map((value) => `"${value.replaceAll('"', '""')}"`).join(','))
+    .join('\n');
+}

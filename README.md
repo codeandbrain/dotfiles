@@ -9,7 +9,7 @@ The browser app now opens as **Orbit**, a hosted GitHub account and organization
 - Overview dashboard with repository, organization, follower, activity, and workspace-health cards
 - Searchable repositories view with public/private filters
 - Organization cards and access/team review
-- Activity log and CSV-export placeholder
+- Activity log with downloadable CSV export
 - Settings view with hosted GitHub OAuth sign-in and secure session handling
 - Responsive layout for desktop, tablet, and mobile widths
 
@@ -50,5 +50,6 @@ The Repositories screen now supports:
 - Organization chips for multi-organization filtering
 - Language, sort, search, visibility, and archived filters
 - CSV export of selected repositories
+- Public-only and private-only repository views
 - Copying selected repository links
 - Confirmed batch archive for live connected workspaces; demo mode remains read-only
