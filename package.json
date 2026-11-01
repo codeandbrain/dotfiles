@@ -12,5 +12,8 @@
     "lint": "npm run lint --workspace frontend && npm run lint --workspace backend",
     "test": "tsx --test \"frontend/lib/**/*.test.ts\"",
     "typecheck": "npm run typecheck --workspace frontend && npm run typecheck --workspace backend"
+  },
+  "overrides": {
+    "minimatch": "^10.2.6"
   }
 }
