@@ -50,3 +50,12 @@ export function activitiesToCsv(activities: Array<{ title: string; detail: strin
     .map((row) => row.map((value) => `"${value.replaceAll('"', '""')}"`).join(','))
     .join('\n');
 }
+
+/**
+ * Returns a copy of `repositories` in which only the repositories whose ids are in
+ * `archivedIds` are flagged archived. Used after a batch archive so that repositories whose
+ * request failed are never shown as archived.
+ */
+export function markArchived(repositories: Repository[], archivedIds: ReadonlySet<number>): Repository[] {
+  return repositories.map((repo) => (archivedIds.has(repo.id) ? { ...repo, archived: true } : repo));
+}

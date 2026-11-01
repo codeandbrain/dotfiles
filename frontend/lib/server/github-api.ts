@@ -1,6 +1,7 @@
 import 'server-only';
 
 import type { Account, Organization, Repository } from '../github';
+import { GITHUB_API_ORIGIN, MAX_PAGES, parseNextLink } from '../pagination';
 
 const githubHeaders = {
   Accept: 'application/vnd.github+json',
@@ -14,8 +15,8 @@ function requireOAuthConfig() {
   return { clientId, clientSecret };
 }
 
-async function githubRequest<T>(path: string, accessToken: string, init?: RequestInit): Promise<T> {
-  const response = await fetch(`https://api.github.com${path}`, {
+async function githubFetch(url: string, accessToken: string, init?: RequestInit): Promise<Response> {
+  const response = await fetch(url, {
     ...init,
     headers: { ...githubHeaders, Authorization: `Bearer ${accessToken}`, ...init?.headers },
     cache: 'no-store',
@@ -24,7 +25,28 @@ async function githubRequest<T>(path: string, accessToken: string, init?: Reques
     const message = response.headers.get('x-ratelimit-remaining') === '0' ? 'GitHub rate limit reached' : `GitHub returned ${response.status}`;
     throw new Error(message);
   }
+  return response;
+}
+
+async function githubRequest<T>(path: string, accessToken: string, init?: RequestInit): Promise<T> {
+  const response = await githubFetch(`${GITHUB_API_ORIGIN}${path}`, accessToken, init);
   return response.json() as Promise<T>;
+}
+
+// Follows GitHub's Link: rel="next" headers, up to MAX_PAGES pages, and reports whether
+// more data existed than was loaded.
+async function githubRequestAll<T>(path: string, accessToken: string): Promise<{ items: T[]; truncated: boolean }> {
+  const items: T[] = [];
+  let url: string | null = `${GITHUB_API_ORIGIN}${path}`;
+  let pages = 0;
+  while (url) {
+    if (pages >= MAX_PAGES) return { items, truncated: true };
+    const response = await githubFetch(url, accessToken);
+    items.push(...((await response.json()) as T[]));
+    url = parseNextLink(response.headers.get('link'));
+    pages += 1;
+  }
+  return { items, truncated: false };
 }
 
 export function getGitHubAuthorizationUrl(state: string, origin: string) {
@@ -50,10 +72,16 @@ export async function exchangeGitHubCode(code: string, origin: string) {
 export async function loadGitHubWorkspace(accessToken: string) {
   const [account, repositories, organizations] = await Promise.all([
     githubRequest<Account>('/user', accessToken),
-    githubRequest<Repository[]>('/user/repos?per_page=100&sort=updated&affiliation=owner,collaborator,organization_member', accessToken),
-    githubRequest<Organization[]>('/user/orgs?per_page=100', accessToken),
+    githubRequestAll<Repository>('/user/repos?per_page=100&sort=updated&affiliation=owner,collaborator,organization_member', accessToken),
+    githubRequestAll<Organization>('/user/orgs?per_page=100', accessToken),
   ]);
-  return { account, repositories, organizations, demo: false };
+  return {
+    account,
+    repositories: repositories.items,
+    organizations: organizations.items,
+    truncated: repositories.truncated || organizations.truncated,
+    demo: false,
+  };
 }
 
 export async function archiveGitHubRepository(accessToken: string, owner: string, repo: string) {
