@@ -11,6 +11,6 @@
     "build": "npm run build --workspace frontend && npm run build --workspace backend",
     "lint": "npm run lint --workspace frontend && npm run lint --workspace backend",
     "test": "tsx --test \"frontend/lib/**/*.test.ts\"",
-    "typecheck": "npm run typecheck --workspace frontend && npm run lint --workspace backend"
+    "typecheck": "npm run typecheck --workspace frontend && npm run typecheck --workspace backend"
   }
 }
