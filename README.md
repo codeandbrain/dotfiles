@@ -1,55 +1,53 @@
+# Orbit — GitHub workspace manager
 
+Orbit is a free, browser-based workspace for managing a GitHub account and its organizations. It opens in a safe **demo mode** with sample data, and can connect to your real GitHub account with a secure, server-side sign-in.
 
-## Orbit GitHub workspace manager
+> New here? Read [START-HERE.md](START-HERE.md). It has the exact three commands and where to click.
 
-The browser app now opens as **Orbit**, a hosted GitHub account and organization workspace manager. It works immediately in demo mode without an account, and production mode uses server-side GitHub OAuth.
+## What you can do
 
-### Included screens
+- See an overview of repositories, organizations, followers, and workspace health
+- Search and filter repositories by name, organization, language, visibility, and archived status
+- Select several repositories at once, export a CSV, or copy their links
+- Review organization cards and access information in demo mode
+- Export a sample activity log as a CSV
+- Sign in with GitHub to load your live account, repositories, and organizations
+- Archive selected repositories after a clear confirmation (live accounts only)
 
-- Overview dashboard with repository, organization, follower, activity, and workspace-health cards
-- Searchable repositories view with public/private filters
-- Organization cards and access/team review
-- Activity log with downloadable CSV export
-- Settings view with hosted GitHub OAuth sign-in and secure session handling
-- Responsive layout for desktop, tablet, and mobile widths
+## Run it locally
 
-### Hosted use (recommended)
-
-Orbit is designed to run as a hosted Next.js app on Vercel. Users choose **Sign in with GitHub**, and Orbit loads their personal repositories and authorized organizations through server-side GitHub OAuth. No personal access token is pasted into the browser, and repository write actions are sent through authenticated server routes.
-
-Create a GitHub OAuth App with callback URL `https://YOUR-VERCEL-DOMAIN/api/auth/callback`. Add `GITHUB_OAUTH_CLIENT_ID`, `GITHUB_OAUTH_CLIENT_SECRET`, `SESSION_SECRET`, and `NEXT_PUBLIC_APP_URL` to the Vercel project environment. If an organization requires OAuth approval, an organization owner must approve the app before private organization data can be listed.
-
-Configure the Vercel project with `frontend` as its Root Directory, `npm run build` as its build command, and `npm install` as its install command. The frontend workspace contains both the dashboard and the server-side API routes.
-
-### Run the demo locally
+Working folder: `/home/ariful/projects/dotfiles`
 
 ```bash
-npm install
+npm ci
 npm run dev
 ```
 
-Open <http://localhost:3000>. Demo mode works without credentials. To test OAuth locally, copy `frontend/.env.example` to `frontend/.env.local`, set the values, and register `http://localhost:3000/api/auth/callback` as the OAuth callback URL. Selecting **Use demo mode** returns to local sample data.
+Open <http://localhost:3000>. Demo mode needs no credentials. To connect GitHub, copy [frontend/.env.example](frontend/.env.example) to `frontend/.env.local`, fill in the values, and follow [docs/OAUTH-SETUP.md](docs/OAUTH-SETUP.md).
 
-The original prototype files remain available as `frontend/app/page.legacy.tsx`, `frontend/app/globals.legacy.css`, and `frontend/app/layout.legacy.tsx`.
+## Check the project
 
+```bash
+npm run check
+```
 
-## CI/CD and publishing
+This runs linting, type checks, tests, and the production build. The same checks run automatically on GitHub through [.github/workflows/ci.yml](.github/workflows/ci.yml), plus a security audit. Dependencies are updated weekly by Dependabot.
 
-GitHub Actions provides:
+## Hosting
 
-- `.github/workflows/ci.yml`: lint, TypeScript checks, moderate-severity audit gate, and production build on pull requests and pushes to `main`.
-- `.github/dependabot.yml`: weekly npm updates and monthly GitHub Actions updates.
+Orbit is one hosted Next.js application, designed for Vercel with `frontend` as the project root. The sign-in routes must run on a server, so a purely static site is not supported. See [docs/OAUTH-SETUP.md](docs/OAUTH-SETUP.md) for the four environment values needed in production.
 
-Production hosting is Vercel because OAuth and repository operations require server-side route handlers. GitHub Pages is not used for the production app.
+## Project map
 
-## Repository operations
+| Path | Purpose |
+| --- | --- |
+| `START-HERE.md` | Plain-language entry point |
+| `AGENTS.md` | Working rules for the AI developer (OpenCode) |
+| `frontend/app/` | Screens and server routes |
+| `frontend/lib/` | Small helpers and their tests |
+| `docs/` | Product, architecture, and setup guides |
+| `.opencode/` | OpenCode agents, commands, and skills |
 
-The Repositories screen now supports:
+## Contact
 
-- Multi-select across the current filtered result set
-- Organization chips for multi-organization filtering
-- Language, sort, search, visibility, and archived filters
-- CSV export of selected repositories
-- Public-only and private-only repository views
-- Copying selected repository links
-- Confirmed batch archive for live connected workspaces; demo mode remains read-only
+Problems or security concerns: `code.and.brain@gmail.com`. Please do not post secrets in public issues.

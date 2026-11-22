@@ -1,56 +1,43 @@
-# How Dotfile Composer works
+# How Orbit is built
 
-## What it is
+## In one paragraph
 
-Dotfile Composer is an early web-app prototype. It has a page for editing one text file and previewing its contents. If the GitHub App is configured, the page can send that file to the backend, which asks GitHub to create a branch and pull request in one repository.
+Orbit is a single Next.js website. The visible dashboard runs in your browser; the sign-in and GitHub operations run on the server in small "route handlers". That split is the key safety idea: secret values and your GitHub token stay on the server, while the browser only receives the information needed to draw the screen.
 
-## Why changes use pull requests
+## The parts
 
-A pull request is a proposed change. It gives the repository owner a chance to review the file on GitHub before deciding whether to merge it. The app does not directly change the repository's main branch or merge the pull request.
+| Part | Where | What it does |
+| --- | --- | --- |
+| Dashboard screen | `frontend/app/page.tsx` | Draws the overview, repository, organization, access, activity, and settings screens. Uses sample data until sign-in succeeds. |
+| Page shell and styles | `frontend/app/layout.tsx`, `frontend/app/globals.css` | Sets the page title and all styling. Fonts are local, so the app works offline. |
+| Sign-in routes | `frontend/app/api/auth/*` | Start sign-in, receive GitHub's callback, report the session, and sign out. |
+| Archive route | `frontend/app/api/repositories/archive/route.ts` | Archives one repository after checking the session and the request. |
+| Server helpers | `frontend/lib/server/github-api.ts`, `github-session.ts` | Talk to GitHub, encrypt/decrypt the session cookie, and check the sign-in "state". |
+| Browser helpers | `frontend/lib/github.ts`, `workspace.ts`, `pagination.ts` | Data shapes, sample data, filters, CSV export, and page-limit handling. |
+| Tests | `frontend/lib/**/*.test.ts` | Check filters, archiving, page links, and session encryption. |
+| Automation | `.github/workflows/ci.yml`, `.github/dependabot.yml` | Run checks on every change and keep dependencies current. |
 
-## Intended request flow
+## What happens when you sign in
 
-1. The user edits the destination details and dotfile content in the browser.
-2. The browser checks that required fields are filled in and shows a live preview.
-3. When submitted, the browser sends the details to the backend service.
-4. The backend checks the required values and uses the server-side GitHub App credentials.
-5. The backend finds the GitHub App installation that can access the named repository.
-6. GitHub receives a request to create or use a branch, write the file, and open a pull request.
-7. The browser displays the pull request link or an error message.
+1. On the Settings screen you choose **Sign in with GitHub**.
+2. `api/auth/github` creates a random one-time "state" value, stores it in a short-lived cookie, and sends you to GitHub.
+3. GitHub sends you back to `api/auth/callback` with a code and the same state.
+4. The server compares the state with the cookie. If they do not match, sign-in is rejected.
+5. The server exchanges the code for an access token, encrypts it into an `HttpOnly` session cookie, and returns you to the dashboard.
+6. `api/auth/session` uses that cookie to load your account, up to 1,000 repositories, and up to 1,000 organizations from GitHub. If there is more data, the app says so instead of silently hiding it.
+7. **Sign out** deletes the session cookie and returns to demo mode.
 
-This end-to-end flow is not currently ready to use. The backend does not yet allow the browser's cross-origin request, so submitting from the page may be blocked.
+## Safety notes
 
-## Main parts
+- The state check prevents an attacker from starting a sign-in in your name.
+- The session cookie is encrypted with `SESSION_SECRET` and expires after seven days.
+- Passwords and tokens are never typed into Orbit; GitHub handles identity.
+- The "next page" link from GitHub is accepted only if it points to `https://api.github.com`, so the token is never sent to another address.
+- Archiving is a `PATCH` request made by the server, one repository at a time, with failures reported honestly.
 
-| Part | What it does |
-| --- | --- |
-| Frontend (`frontend/app/`) | Displays the editor, preview, destination fields, and result message. |
-| Backend (`backend/src/index.ts`) | Receives the browser request, checks required fields, and returns a result. |
-| GitHub integration (`backend/src/github.ts`) | Uses the GitHub App to find repository access and create the branch, file update, and pull request. |
-| GitHub App manifest (`infra/manifest.yml`) | Provides a starting point for registering a GitHub App. Its placeholder URLs and permissions must be reviewed before use. |
-| Local environment file (`.env`) | Holds the private GitHub App credentials on the developer's computer. It must not be shared or committed. |
+## What Orbit does **not** do
 
-There is also a cache helper in `backend/src/cache.ts` that supports Redis or in-memory storage. The current GitHub PR integration keeps its own in-memory caches; the helper is not connected to that workflow yet.
-
-## What is not part of the current prototype
-
-The current app does not include:
-
-- browser permission to connect to the backend from the frontend's different local port
-- user sign-in or account management
-- a page that lists repositories or installations for selection
-- a library of profiles, templates, or visual building blocks
-- multi-repository or batch updates
-- a preview of the exact GitHub diff before submission
-- webhook processing, scheduled updates, or a job-history screen
-- a database for users, profiles, or audit records
-
-These are possible future features, not available functions. See [PROPOSAL.md](./PROPOSAL.md) for product ideas.
-
-## Security and access
-
-- Keep `GITHUB_APP_PRIVATE_KEY` on the backend only. Never put it in browser code or a `NEXT_PUBLIC_...` setting.
-- Install the GitHub App only on the account or organization and repositories that should be in scope.
-- Start with a test repository and inspect the pull request before merging.
-- The sample manifest includes permissions beyond what the current PR flow needs. Review and reduce the permissions before using it.
-- Webhook and OAuth URLs in the sample manifest are placeholders; the prototype does not provide those services.
+- It does not read your GitHub activity or organization members/teams — those screens explain this clearly instead of showing fake live data.
+- It does not create branches, commits, or pull requests.
+- It does not merge changes or alter default branches.
+- It does not store your GitHub data in a database; each page load fetches it again from GitHub.
