@@ -3,7 +3,7 @@ description: Run the full quality gate and report the result
 agent: orbit-dev
 ---
 
-Load the `quality-gates` skill, then run the complete check from `/home/ariful/projects/dotfiles`:
+Load the `quality-gates` skill, then run the complete check from the project root (the folder containing `AGENTS.md`):
 
 1. `npm run lint`
 2. `npm run typecheck`

@@ -1,5 +1,5 @@
 ---
-name: No-coder handoff
+name: no-coder-handoff
 description: Use when explaining anything to Ariful, writing user-facing text, or reporting what changed after a task.
 ---
 
@@ -18,7 +18,7 @@ A domain expert with zero programming knowledge and only basic terminal experien
 
 ## Command rules
 
-- State the exact working folder before every command, for example `/home/ariful/projects/dotfiles`.
+- State the working folder before every command without naming one person's machine: say "the project root (the folder containing `AGENTS.md`)", then show the command.
 - Give one command at a time in a fenced ```bash block.
 - Copy-paste ready. No placeholders that require technical editing unless clearly marked and explained.
 - Verify the command makes sense before presenting it.

@@ -1,5 +1,5 @@
 ---
-name: Orbit project map
+name: orbit-project
 description: Use when learning or changing the Orbit repository layout, naming, or where a change belongs.
 ---
 

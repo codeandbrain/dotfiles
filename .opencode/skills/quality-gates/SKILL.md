@@ -1,11 +1,11 @@
 ---
-name: Quality gates
+name: quality-gates
 description: Use before reporting any task as finished, or when running /check in the Orbit project.
 ---
 
 # Quality gates
 
-Working folder for every command: `/home/ariful/projects/dotfiles`
+Working folder for every command: the project root (the folder containing `AGENTS.md`)
 
 ## Required sequence
 

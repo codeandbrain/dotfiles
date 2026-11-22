@@ -1,5 +1,5 @@
 ---
-name: GitHub workflow
+name: github-workflow
 description: Use for branches, commits, pull requests, Dependabot, or GitHub Actions in the Orbit repository.
 ---
 
