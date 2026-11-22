@@ -1,101 +1,75 @@
-# Connect Orbit to your GitHub account
+# Orbit sign-in setup — completed
 
-Orbit works in demo mode without any of this. Follow these steps only when you want to see your **real** repositories and organizations. Nothing here costs money.
+Orbit works in demo mode without any setup. This page records the live GitHub sign-in setup so it can be checked or repeated later.
 
-## Your live addresses and names (already created)
+## Your live settings
 
 | Item | Exact value |
 | --- | --- |
+| GitHub account | `codeandbrain` |
+| Repository | `codeandbrain/dotfiles` |
 | Vercel team | `codeandbrain` |
 | Vercel project | `orbit` |
 | Website (Homepage URL) | `https://orbit-peach-alpha-31.vercel.app` |
 | Callback URL | `https://orbit-peach-alpha-31.vercel.app/api/auth/callback` |
-| GitHub account | `codeandbrain` |
-| Repository | `codeandbrain/dotfiles` |
+| Production branch | `main` |
 
-The two addresses above are the ones Vercel gave this project. Copy them exactly — no trailing slash, no extra spaces.
+The short name `orbit.vercel.app` was already taken, so Vercel assigned the stable address above.
 
-## The idea in one picture
+## What is connected
 
-1. **Vercel** gives Orbit a web address (done).
-2. **GitHub** needs to know that address, so you register it once in a free "OAuth App" form.
-3. **GitHub gives back two values**: a Client ID and a Client Secret.
-4. **Those two values go into Vercel** as settings, together with a private Session Secret.
-5. Vercel rebuilds the site. Sign-in then works.
-
-The Client ID and Client Secret are the only values you need to bring back and give to OpenCode.
-
----
-
-## Step 1 — Install the free Vercel GitHub App (one-time, for automatic publishing)
-
-This lets every push to `main` update the live website by itself.
-
-1. Open this link while signed in as `codeandbrain`:
-   <https://github.com/apps/vercel/installations/new>
-2. Choose **Only select repositories** and tick **`dotfiles`**.
-3. Click **Install**.
-
-Tell OpenCode when this is done. It will finish connecting the project from the terminal.
-
----
-
-## Step 2 — Register the free GitHub OAuth App
-
-1. Open this exact link: <https://github.com/settings/applications/new>
-2. Fill the form with these exact values:
-
-| Field | What to type |
-| --- | --- |
-| Application name | `Orbit` |
-| Homepage URL | `https://orbit-peach-alpha-31.vercel.app` |
-| Application description | `Orbit - a friendly GitHub workspace manager` |
-| Authorization callback URL | `https://orbit-peach-alpha-31.vercel.app/api/auth/callback` |
-| Enable Device Flow | leave unchecked |
-| Expire user access tokens | leave checked |
-
-3. Click **Register application**.
-4. On the next page, copy the **Client ID**.
-5. Click **Generate a new client secret** and copy the secret immediately — GitHub shows it only once.
-6. Paste those two values back to OpenCode in chat. Do **not** put them in any project file.
-
-OpenCode will store them only as Vercel environment variables and rebuild the site.
-
----
-
-## What OpenCode has already stored in Vercel
-
-| Setting | Where it is stored | Status |
+| Setting | Where it lives | Status |
 | --- | --- | --- |
-| `NEXT_PUBLIC_APP_URL` | Vercel environment variable (Production, Preview, Development) | Done |
-| `SESSION_SECRET` | Vercel Secret environment variable | Done — private, never shown |
-| `GITHUB_OAUTH_CLIENT_ID` | Vercel environment variable | Waiting for Step 2 |
-| `GITHUB_OAUTH_CLIENT_SECRET` | Vercel Secret environment variable | Waiting for Step 2 |
+| Vercel project → GitHub repository | Vercel Git integration | Connected ✓ |
+| `NEXT_PUBLIC_APP_URL` | Vercel environment variable (Production, Preview, Development) | Done ✓ |
+| `SESSION_SECRET` | Vercel Secret environment variable | Done ✓ — private, never shown |
+| `GITHUB_OAUTH_CLIENT_ID` | Vercel Secret environment variable | Done ✓ |
+| `GITHUB_OAUTH_CLIENT_SECRET` | Vercel Secret environment variable | Done ✓ — private, never shown |
+| Root directory | `frontend` | Done ✓ |
+| Framework | Next.js | Done ✓ |
+| Build command | `npm run build` | Done ✓ |
+| Install command | `npm install` | Done ✓ |
+| Node.js version | `22.x` | Done ✓ |
 
-Build settings on the Vercel project: root directory `frontend`, framework `Next.js`, build command `npm run build`, install command `npm install`, Node.js `22.x`.
+No secret value is stored in this repository. A push to `main` creates a new production deployment through Vercel's free GitHub integration.
 
----
+## How the pieces fit
 
-## Step 3 — Check that sign-in works
+1. Vercel gave Orbit the website address above.
+2. A free GitHub OAuth App was registered with that address as its homepage, and the `/api/auth/callback` address as its callback.
+3. GitHub returned a Client ID and Client Secret; both were added only in Vercel's environment settings.
+4. A private Session Secret encrypts the small sign-in cookie (an `HttpOnly` cookie that remembers you are signed in).
+5. When someone signs in, GitHub sends them back to the callback address with a one-time code. The server checks it and returns them to the dashboard with their real repositories.
 
-After OpenCode adds the two values and redeploys:
+## How to check sign-in
 
 1. Open <https://orbit-peach-alpha-31.vercel.app>.
 2. Click **Settings** in the left menu.
 3. Click **Sign in with GitHub**.
 4. Approve the permissions GitHub shows.
-5. The page returns with a **Connected** badge and your real repositories.
+5. The dashboard returns with a **Connected** badge and your real repositories.
 
 If it fails, the page shows a plain message such as *"GitHub sign-in could not be verified. Please try again."* Copy that message to OpenCode with `/fix`.
 
----
+## If the OAuth App ever needs to be recreated
+
+Register a new one at <https://github.com/settings/applications/new> with:
+
+| Field | Value |
+| --- | --- |
+| Application name | `Orbit` |
+| Homepage URL | `https://orbit-peach-alpha-31.vercel.app` |
+| Application description | `Orbit - a friendly GitHub workspace manager` |
+| Authorization callback URL | `https://orbit-peach-alpha-31.vercel.app/api/auth/callback` |
+| Enable Device Flow | unchecked |
+| Expire user access tokens | checked |
+
+Then replace the two GitHub values in Vercel → Settings → Environment Variables and redeploy. Do not paste the secret into chat or into a project file.
 
 ## Common questions
 
-**Why is the address not simply `orbit.vercel.app`?** That short name is already used by someone else on Vercel, so Vercel assigned this stable one. It is yours and does not change.
-
-**Do I need a GitHub App instead?** No. Orbit uses a free OAuth App by design.
-
-**Why can I not see private organization repositories?** An organization owner must approve the OAuth App first, under the organization's **Applications** settings.
-
 **Can I use a personal access token?** No. Tokens never enter the browser in Orbit.
+
+**Why can I not see private organization repositories?** An organization owner must first approve the OAuth App under that organization's **Applications** settings.
+
+**Why does the app say some repositories are missing?** GitHub is read in pages of 100, up to 1,000 items. If there is more data, Orbit says so instead of pretending the list is complete.
