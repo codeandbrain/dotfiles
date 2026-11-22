@@ -1,5 +1,5 @@
 {
-  "name": "dotfile-frontend",
+  "name": "orbit-frontend",
   "private": true,
   "scripts": {
     "dev": "next dev",

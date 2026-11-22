@@ -1,7 +1,7 @@
 // Pure helpers for following GitHub's paginated API responses.
 // No dependencies, no server-only imports, so they can be unit-tested directly.
 
-export const GITHUB_API_ORIGIN = 'https://api.github.com';
+export const GITHUB_API_ORIGIN = "https://api.github.com";
 
 // 10 pages x 100 items = at most 1,000 items per list. Beyond this Orbit reports truncation.
 export const MAX_PAGES = 10;
@@ -18,7 +18,7 @@ export function parseNextLink(linkHeader: string | null): string | null {
   const entry = /<([^>]*)>\s*;\s*rel="([^"]*)"/g;
   let match: RegExpExecArray | null;
   while ((match = entry.exec(linkHeader)) !== null) {
-    if (!match[2].split(/\s+/).includes('next')) continue;
+    if (!match[2].split(/\s+/).includes("next")) continue;
     try {
       const url = new URL(match[1]);
       return url.origin === GITHUB_API_ORIGIN ? url.toString() : null;

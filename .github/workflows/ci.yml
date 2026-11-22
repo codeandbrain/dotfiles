@@ -15,7 +15,7 @@ concurrency:
 
 jobs:
   quality:
-    name: Lint, typecheck, audit, and build
+    name: Lint, typecheck, test, audit, and build
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -35,11 +35,12 @@ jobs:
         run: npm run lint
       - name: Typecheck
         run: npm run typecheck
+      - name: Test
+        run: npm test
 
       - name: Security audit
-        # Next 15 currently brings a known high-severity PostCSS advisory;
-        # fail the pipeline for critical findings while tracking lower levels.
+        # Block critical issues in shipped packages; review lower levels in Dependabot.
         run: npm audit --audit-level=critical --omit=dev
 
-      - name: Build frontend and backend
+      - name: Build Orbit
         run: npm run build
