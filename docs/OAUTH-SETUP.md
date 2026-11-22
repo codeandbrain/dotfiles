@@ -66,6 +66,20 @@ Register a new one at <https://github.com/settings/applications/new> with:
 
 Then replace the two GitHub values in Vercel → Settings → Environment Variables and redeploy. Do not paste the secret into chat or into a project file.
 
+## Custom domain (optional, only if you already own one)
+
+Vercel can attach a domain you already own at no cost. Buying a new domain is not part of this zero-cost setup, and the short `orbit.vercel.app` is already allocated to someone else, so the address above stays as it is.
+
+If you later add a domain you own, update three places together, then redeploy:
+
+| Place | New value |
+| --- | --- |
+| GitHub OAuth App Homepage URL | `https://your-domain.example` |
+| GitHub OAuth App Authorization callback URL | `https://your-domain.example/api/auth/callback` |
+| Vercel environment variable `NEXT_PUBLIC_APP_URL` | `https://your-domain.example` |
+
+---
+
 ## Common questions
 
 **Can I use a personal access token?** No. Tokens never enter the browser in Orbit.
