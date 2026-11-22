@@ -28,3 +28,6 @@ Thumbs.db
 
 # Local OpenCode worktrees (temporary workspaces)
 .opencode/worktrees/
+
+# Local Vercel project link (machine-specific)
+.vercel/

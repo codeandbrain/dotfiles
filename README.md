@@ -35,7 +35,7 @@ This runs linting, type checks, tests, and the production build. The same checks
 
 ## Hosting
 
-Orbit is one hosted Next.js application, designed for Vercel with `frontend` as the project root. The sign-in routes must run on a server, so a purely static site is not supported. See [docs/OAUTH-SETUP.md](docs/OAUTH-SETUP.md) for the four environment values needed in production.
+Orbit is one hosted Next.js application on Vercel, with `frontend` as the project root. The live site is <https://orbit-peach-alpha-31.vercel.app>. The sign-in routes must run on a server, so a purely static site is not supported. See [docs/OAUTH-SETUP.md](docs/OAUTH-SETUP.md) for the exact GitHub sign-in settings.
 
 ## Project map
 
